@@ -1,0 +1,9 @@
+# File cấu hình riêng
+config/database.local.php
+
+# VS Code
+.vscode/
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db

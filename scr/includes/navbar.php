@@ -1,6 +1,6 @@
 <?php
 $baseUrl =
-    '/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master';
+    '/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr';
 
 $cartCount = 0;
 
@@ -53,31 +53,37 @@ if (!empty($_SESSION['cart'])) {
                     <?php endif; ?>
                 </a>
 
-                <?php if (isset($_SESSION['user'])): ?>
-                    <span class="navbar-text mx-lg-2">
-                        Xin chào,
-                        <?= htmlspecialchars(
-                            $_SESSION['user']['fullname'],
-                            ENT_QUOTES,
-                            'UTF-8'
-                        ) ?>
-                    </span>
+                    <?php if (isset($_SESSION['user'])): ?>
+                <a class="nav-link"
+                href="<?= $baseUrl ?>/pages/my-orders.php">
+                    <i class="bi bi-receipt"></i>
+                    Đơn hàng của tôi
+                </a>
 
-                    <a class="nav-link"
-                       href="<?= $baseUrl ?>/actions/logout.php">
-                        Đăng xuất
-                    </a>
-                <?php else: ?>
-                    <a class="nav-link"
-                       href="<?= $baseUrl ?>/pages/login.php">
-                        Đăng nhập
-                    </a>
+                <span class="navbar-text mx-lg-2">
+                    Xin chào,
+                    <?= htmlspecialchars(
+                        $_SESSION['user']['fullname'],
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>
+                </span>
 
-                    <a class="nav-link"
-                       href="<?= $baseUrl ?>/pages/register.php">
-                        Đăng ký
-                    </a>
-                <?php endif; ?>
+                <a class="nav-link"
+                href="<?= $baseUrl ?>/actions/logout.php">
+                    Đăng xuất
+                </a>
+            <?php else: ?>
+                <a class="nav-link"
+                href="<?= $baseUrl ?>/pages/login.php">
+                    Đăng nhập
+                </a>
+
+                <a class="nav-link"
+                href="<?= $baseUrl ?>/pages/register.php">
+                    Đăng ký
+                </a>
+            <?php endif; ?>
             </div>
         </div>
     </div>

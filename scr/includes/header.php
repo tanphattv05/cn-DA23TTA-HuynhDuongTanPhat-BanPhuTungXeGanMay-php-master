@@ -26,7 +26,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- CSS của website -->
     <link
         rel="stylesheet"
-        href="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/assets/css/style.css">
+        href="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/assets/css/style.css">
 
 </head>
 

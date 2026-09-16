@@ -1,4 +1,12 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -33,7 +41,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <?php endif; ?>
 
             <a
-                href="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/pages/products.php"
+                href="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/pages/products.php"
                 class="btn btn-danger btn-lg mt-3">
                 Xem sản phẩm
             </a>

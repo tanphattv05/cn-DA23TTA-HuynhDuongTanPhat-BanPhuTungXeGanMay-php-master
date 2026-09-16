@@ -35,6 +35,13 @@ if (!$orderId) {
                 Cửa hàng sẽ liên hệ với bạn để xác nhận đơn hàng.
             </p>
 
+            <?php if (isset($_SESSION['user'])): ?>
+                <a href="order-detail.php?id=<?= (int) $orderId ?>"
+                class="btn btn-danger">
+                    Xem đơn hàng
+                </a>
+            <?php endif; ?>
+
             <a href="products.php" class="btn btn-dark">
                 Tiếp tục mua hàng
             </a>

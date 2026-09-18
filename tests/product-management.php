@@ -162,6 +162,8 @@ try {
     $before = $db->query('SELECT * FROM products WHERE id=1')->fetch_assoc();
     request('admin/save-product.php', $data + ['image'=>new CURLFile($svg,'image/png','fake.png')]);
     check($before === $db->query('SELECT * FROM products WHERE id=1')->fetch_assoc(), 'Reject SVG disguised as PNG');
+    require __DIR__ . '/category-management.php';
+    require __DIR__ . '/customer-management.php';
     echo "Completed $checks checks. Live database untouched.\n";
 } finally {
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }

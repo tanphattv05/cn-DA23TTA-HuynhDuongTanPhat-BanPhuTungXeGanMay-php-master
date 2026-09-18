@@ -113,6 +113,18 @@ $assetUrl = $adminUrl . '/assets/adminlte';
                             <p>Sản phẩm</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="<?= $adminUrl ?>/categories.php"
+                           class="nav-link <?= in_array($currentPage, ['categories.php', 'category-form.php', 'save-category.php'], true) ? 'active' : '' ?>">
+                            <p>Danh mục</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="<?= $adminUrl ?>/customers.php"
+                           class="nav-link <?= in_array($currentPage, ['customers.php', 'customer-detail.php'], true) ? 'active' : '' ?>">
+                            <p>Khách hàng</p>
+                        </a>
+                    </li>
                     <li class="nav-header">
                         WEBSITE
                     </li>

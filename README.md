@@ -8,13 +8,32 @@ Dự án được phát triển với mô hình Frontend - Backend - Database, s
 
 ## Công nghệ sử dụng
 
-- HTML
-- CSS
+### Frontend
+
+- HTML5
+- CSS3
 - JavaScript
 - Bootstrap 5
+
+### Backend
+
 - PHP
+
+### Database
+
 - MySQL
+
+### Admin
+
+- AdminLTE
+- Bootstrap
+
+### Môi trường phát triển
+
 - XAMPP
+- phpMyAdmin
+- Visual Studio Code
+- Git / GitHub
 
 ## Chức năng
 

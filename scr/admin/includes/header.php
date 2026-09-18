@@ -107,6 +107,12 @@ $assetUrl = $adminUrl . '/assets/adminlte';
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="<?= $adminUrl ?>/products.php"
+                           class="nav-link <?= in_array($currentPage, ['products.php', 'product-form.php', 'save-product.php'], true) ? 'active' : '' ?>">
+                            <p>Sản phẩm</p>
+                        </a>
+                    </li>
                     <li class="nav-header">
                         WEBSITE
                     </li>

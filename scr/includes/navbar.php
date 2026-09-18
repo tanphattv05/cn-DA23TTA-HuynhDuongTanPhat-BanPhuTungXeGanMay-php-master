@@ -54,6 +54,12 @@ if (!empty($_SESSION['cart'])) {
                 </a>
 
                     <?php if (isset($_SESSION['user'])): ?>
+                        <?php if (($_SESSION['user']['role'] ?? '') === 'admin'): ?>
+                <a class="nav-link"
+                href="<?= $baseUrl ?>/admin/index.php">
+                    Quản trị
+                </a>
+            <?php endif; ?>
                 <a class="nav-link"
                 href="<?= $baseUrl ?>/pages/my-orders.php">
                     <i class="bi bi-receipt"></i>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/includes/order-status.php';
 
 $sql = "
     SELECT
@@ -24,13 +24,7 @@ $latestOrders = mysqli_query(
      LIMIT 10"
 );
 
-$statusLabels = [
-    'pending' => 'Chờ xác nhận',
-    'confirmed' => 'Đã xác nhận',
-    'shipping' => 'Đang giao hàng',
-    'completed' => 'Đã hoàn thành',
-    'cancelled' => 'Đã hủy'
-];
+$statusLabels = order_status_labels();
 
 $statusClasses = [
     'pending' => 'bg-warning text-dark',
@@ -148,7 +142,7 @@ include __DIR__ . '/includes/header.php';
                                 ?>
 
                                 <tr>
-                                    <td>#<?= (int) $order['id'] ?></td>
+                                    <td>#<?= (int) $order['id'] ?><br><a class="btn btn-sm btn-outline-primary mt-1" href="order-detail.php?id=<?= (int) $order['id'] ?>">Xem chi tiết</a></td>
 
                                     <td>
                                         <?= htmlspecialchars(

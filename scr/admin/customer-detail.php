@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/customer-view.php';
+require_once __DIR__ . '/includes/order-status.php';
 $idInput = product_text($_GET, 'id');
 $id = preg_match('/\A[1-9][0-9]{0,9}\z/', $idInput)
     ? filter_var($idInput, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]])
@@ -41,13 +42,7 @@ try {
     http_response_code(503);
     $error = 'Không thể tải thông tin khách hàng. Vui lòng thử lại sau.';
 }
-$statusLabels = [
-    'pending' => 'Chờ xác nhận',
-    'confirmed' => 'Đã xác nhận',
-    'shipping' => 'Đang giao hàng',
-    'completed' => 'Đã hoàn thành',
-    'cancelled' => 'Đã hủy'
-];
+$statusLabels = order_status_labels();
 $pageTitle = $notFound ? '404 — Không tìm thấy khách hàng' : 'Chi tiết khách hàng';
 include __DIR__ . '/includes/header.php';
 ?>
@@ -84,7 +79,7 @@ include __DIR__ . '/includes/header.php';
         <tbody>
         <?php foreach ($orders as $order): ?>
             <tr>
-                <td>#<?= (int) $order['id'] ?></td>
+                <td><a href="order-detail.php?id=<?= (int) $order['id'] ?>">#<?= (int) $order['id'] ?></a></td>
                 <td><?= product_escape(customer_date($order['created_at'])) ?></td>
                 <td><?= product_escape($order['fullname']) ?></td>
                 <td><?= number_format((float) $order['total'], 2, ',', '.') ?> ₫</td>

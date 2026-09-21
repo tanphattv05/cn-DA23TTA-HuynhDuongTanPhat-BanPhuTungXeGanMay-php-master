@@ -102,7 +102,7 @@ $assetUrl = $adminUrl . '/assets/adminlte';
 
                     <li class="nav-item">
                         <a href="<?= $adminUrl ?>/orders.php"
-                           class="nav-link <?= $currentPage === 'orders.php' ? 'active' : '' ?>">
+                           class="nav-link <?= in_array($currentPage, ['orders.php', 'order-detail.php'], true) ? 'active' : '' ?>">
                             <p>Đơn hàng</p>
                         </a>
                     </li>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/includes/order-status.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -17,21 +17,9 @@ $orders = mysqli_query(
      ORDER BY id DESC"
 );
 
-$statusLabels = [
-    'pending' => 'Chờ xác nhận',
-    'confirmed' => 'Đã xác nhận',
-    'shipping' => 'Đang giao hàng',
-    'completed' => 'Đã hoàn thành',
-    'cancelled' => 'Đã hủy'
-];
+$statusLabels = order_status_labels();
 
-$transitions = [
-    'pending' => ['confirmed', 'cancelled'],
-    'confirmed' => ['shipping', 'cancelled'],
-    'shipping' => ['completed'],
-    'completed' => [],
-    'cancelled' => []
-];
+$transitions = order_transitions();
 ?>
 
 <?php
@@ -79,7 +67,7 @@ include __DIR__ . '/includes/header.php';
                         ?>
 
                         <tr>
-                            <td>#<?= (int) $order['id'] ?></td>
+                            <td>#<?= (int) $order['id'] ?><br><a class="btn btn-sm btn-outline-primary mt-1" href="order-detail.php?id=<?= (int) $order['id'] ?>">Xem chi tiết</a></td>
 
                             <td>
                                 <strong>

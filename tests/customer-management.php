@@ -124,7 +124,12 @@ foreach ([1,2,3] as $p) {
     check($status === 200 && count($rows) === ($p === 3 ? 3 : 10), 'History pagination page ' . $p);
     foreach ($rows as $row) $historyIds[] = (int) ltrim($row[0], '#');
     check(!str_contains($html,'private-fixture-marker'), 'No credential fixture in detail response');
-    check(!str_contains($html,'order-detail.php'), 'No link to customer-owned order detail');
+    $links = customer_test_dom($html)->query('//tbody/tr/td[1]/a');
+    $adminLinks = $links->length === count($rows);
+    foreach ($links as $link) {
+        $adminLinks = $adminLinks && preg_match('/^order-detail\.php\?id=[1-9][0-9]*$/', $link->getAttribute('href'));
+    }
+    check($adminLinks, 'History links only to admin order detail');
 }
 check($historyIds === array_reverse($mainOrders), 'History excludes other users, admin and guest orders with matching contacts');
 $html = request('admin/customer-detail.php?id=' . $mainId . '&page=3')[1];

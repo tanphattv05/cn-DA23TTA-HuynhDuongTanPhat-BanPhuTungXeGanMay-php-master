@@ -1,11 +1,21 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/includes/order-status.php';
+
+$returnPath = 'orders.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: orders.php');
+    product_redirect($returnPath);
     exit;
 }
 
+$orderId = filter_input(INPUT_POST, 'order_id', FILTER_VALIDATE_INT, [
+    'options' => ['min_range' => 1, 'max_range' => 2147483647]
+]);
+// Only a fixed marker is accepted, never a caller-supplied URL.
+if ($orderId && ($_POST['return_to'] ?? '') === 'detail') {
+    $returnPath = 'order-detail.php?id=' . $orderId;
+}
+unset($_SESSION['admin_error'], $_SESSION['admin_success']);
 $token = $_POST['csrf_token'] ?? '';
 
 if (!is_string($token)
@@ -14,30 +24,20 @@ if (!is_string($token)
     $_SESSION['admin_error'] =
         'Yêu cầu không hợp lệ. Vui lòng thử lại.';
 
-    header('Location: orders.php');
+    product_redirect($returnPath);
     exit;
 }
 
-$orderId = filter_input(
-    INPUT_POST,
-    'order_id',
-    FILTER_VALIDATE_INT
-);
+
 
 $newStatus = $_POST['status'] ?? '';
 
-$transitions = [
-    'pending' => ['confirmed', 'cancelled'],
-    'confirmed' => ['shipping', 'cancelled'],
-    'shipping' => ['completed'],
-    'completed' => [],
-    'cancelled' => []
-];
+$transitions = order_transitions();
 
 if (!$orderId || $orderId < 1 || !is_string($newStatus)) {
     $_SESSION['admin_error'] = 'Dữ liệu không hợp lệ.';
 
-    header('Location: orders.php');
+    product_redirect($returnPath);
     exit;
 }
 
@@ -138,17 +138,17 @@ try {
     $_SESSION['admin_success'] =
         'Đã cập nhật đơn hàng #' . $orderId . '.';
 } catch (Throwable $error) {
-    mysqli_rollback($conn);
+    try { mysqli_rollback($conn); } catch (Throwable $rollbackError) {}
 
     if ($error instanceof mysqli_sql_exception) {
-        error_log($error->getMessage());
+
 
         $_SESSION['admin_error'] =
             'Có lỗi database. Đơn hàng chưa được cập nhật.';
     } else {
-        $_SESSION['admin_error'] = $error->getMessage();
+        $_SESSION['admin_error'] = $error instanceof RuntimeException ? $error->getMessage() : 'Không thể cập nhật đơn hàng. Vui lòng thử lại sau.';
     }
 }
 
-header('Location: orders.php');
+product_redirect($returnPath);
 exit;

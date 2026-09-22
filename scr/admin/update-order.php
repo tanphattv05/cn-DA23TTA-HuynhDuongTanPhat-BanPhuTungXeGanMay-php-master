@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/order-status.php';
+require_once __DIR__ . '/includes/order-filters.php';
 
 $returnPath = 'orders.php';
 
@@ -14,6 +14,8 @@ $orderId = filter_input(INPUT_POST, 'order_id', FILTER_VALIDATE_INT, [
 // Only a fixed marker is accepted, never a caller-supplied URL.
 if ($orderId && ($_POST['return_to'] ?? '') === 'detail') {
     $returnPath = 'order-detail.php?id=' . $orderId;
+} elseif (($_POST['return_to'] ?? '') === 'list') {
+    $returnPath = order_list_return_path($_POST['list_context'] ?? null);
 }
 unset($_SESSION['admin_error'], $_SESSION['admin_success']);
 $token = $_POST['csrf_token'] ?? '';

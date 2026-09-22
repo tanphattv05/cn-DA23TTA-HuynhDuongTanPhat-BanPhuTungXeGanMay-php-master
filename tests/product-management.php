@@ -165,6 +165,7 @@ try {
     require __DIR__ . '/category-management.php';
     require __DIR__ . '/category-mvc.php';
     require __DIR__ . '/customer-management.php';
+    require __DIR__ . '/customer-mvc.php';
     require __DIR__ . '/admin-order-detail.php';
     require __DIR__ . '/admin-order-list.php';
     require __DIR__ . '/product-mvc.php';

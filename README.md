@@ -4,7 +4,11 @@
 
 Website bán phụ tùng xe gắn máy được xây dựng nhằm hỗ trợ người dùng tìm kiếm, xem thông tin và mua các sản phẩm phụ tùng xe gắn máy trực tuyến.
 
-Dự án được phát triển với mô hình Frontend - Backend - Database, sử dụng PHP để xử lý phía máy chủ và MySQL để lưu trữ dữ liệu.
+Hệ thống cho phép khách hàng xem danh sách sản phẩm, xem chi tiết sản phẩm, tìm kiếm, quản lý giỏ hàng và thực hiện đặt hàng. Đồng thời, hệ thống cung cấp khu vực quản trị giúp quản lý sản phẩm, danh mục, khách hàng và đơn hàng.
+
+Dự án được xây dựng theo mô hình **MVC (Model - View - Controller)**, sử dụng PHP để xử lý phía máy chủ và MySQL để lưu trữ dữ liệu.
+
+---
 
 ## Công nghệ sử dụng
 
@@ -23,6 +27,10 @@ Dự án được phát triển với mô hình Frontend - Backend - Database, s
 
 - MySQL
 
+### Kiến trúc
+
+- MVC (Model - View - Controller)
+
 ### Admin
 
 - AdminLTE
@@ -31,25 +39,26 @@ Dự án được phát triển với mô hình Frontend - Backend - Database, s
 ### Môi trường phát triển
 
 - XAMPP
+- Apache
+- MySQL
 - phpMyAdmin
 - Visual Studio Code
 - Git / GitHub
 
-## Chức năng
+---
 
-### Người dùng
+## Kiến trúc hệ thống
 
-- Xem danh sách sản phẩm
-- Xem thông tin chi tiết sản phẩm
-- Tìm kiếm sản phẩm
-- Xem sản phẩm theo danh mục
-- Thêm sản phẩm vào giỏ hàng
-- Đặt hàng
-- Đăng ký và đăng nhập tài khoản
+Dự án sử dụng mô hình **MVC** nhằm phân tách giao diện, xử lý nghiệp vụ và dữ liệu.
 
-### Quản trị viên
-
-- Quản lý sản phẩm
-- Quản lý danh mục
-- Quản lý khách hàng
-- Quản lý đơn hàng
+```text
+MVC
+│
+├── Model
+│   └── Xử lý dữ liệu và tương tác với MySQL
+│
+├── View
+│   └── Hiển thị giao diện cho người dùng
+│
+└── Controller
+    └── Tiếp nhận yêu cầu và xử lý nghiệp vụ

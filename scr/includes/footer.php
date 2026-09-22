@@ -5,7 +5,7 @@
 </script>
 
 <script
-    src="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/assets/js/main.js">
+    src="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/assets/js/main.js">
 </script>
 
 </body>

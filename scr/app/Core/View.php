@@ -25,4 +25,21 @@ final class View
         require $file;
         require $adminDirectory . '/includes/footer.php';
     }
+
+    public static function storefront(string $template, array $variables): void
+    {
+        if (!preg_match('~\Astorefront/[a-z0-9/-]+\z~', $template) || strpos($template, '..') !== false) {
+            throw new \InvalidArgumentException('Invalid view.');
+        }
+        $file = dirname(__DIR__) . '/Views/' . $template . '.php';
+        if (!is_file($file)) {
+            throw new \RuntimeException('View unavailable.');
+        }
+        extract($variables, EXTR_SKIP);
+        $includesDirectory = dirname(__DIR__, 2) . '/includes';
+        require $includesDirectory . '/header.php';
+        require $includesDirectory . '/navbar.php';
+        require $file;
+        require $includesDirectory . '/footer.php';
+    }
 }

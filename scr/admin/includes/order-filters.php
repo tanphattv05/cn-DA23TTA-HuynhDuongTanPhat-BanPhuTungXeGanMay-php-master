@@ -31,44 +31,6 @@ function order_list_filters(array $input): array
     return [$filters, array_unique($errors)];
 }
 
-function order_list_condition(array $filters): array
-{
-    $where = [];
-    $types = '';
-    $values = [];
-    if ($filters['q'] !== '') {
-        if (preg_match('/\A#?([0-9]+)\z/', $filters['q'], $match)) {
-            $digits = ltrim($match[1], '0');
-            $id = strlen($digits) <= 10 && (float) ($digits ?: '0') <= 2147483647 ? (int) $digits : 0;
-            $where[] = 'id = ?';
-            $types .= 'i';
-            $values[] = $id;
-        } else {
-            $where[] = "(fullname LIKE ? ESCAPE '!' OR phone LIKE ? ESCAPE '!')";
-            $like = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $filters['q']) . '%';
-            $types .= 'ss';
-            array_push($values, $like, $like);
-        }
-    }
-    if ($filters['status'] !== '') {
-        $where[] = 'status = ?';
-        $types .= 's';
-        $values[] = $filters['status'];
-    }
-    if ($filters['from'] !== '') {
-        $where[] = 'created_at >= ?';
-        $types .= 's';
-        $values[] = $filters['from'] . ' 00:00:00';
-    }
-    if ($filters['to'] !== '') {
-        // orders.created_at is TIMESTAMP with second precision.
-        $where[] = 'created_at <= ?';
-        $types .= 's';
-        $values[] = $filters['to'] . ' 23:59:59';
-    }
-    return [$where ? ' WHERE ' . implode(' AND ', $where) : '', $types, $values];
-}
-
 function order_list_return_path($context): string
 {
     if (!is_array($context)) {

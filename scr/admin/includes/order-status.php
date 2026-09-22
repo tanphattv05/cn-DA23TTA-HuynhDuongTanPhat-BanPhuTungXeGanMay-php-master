@@ -30,3 +30,14 @@ function order_money(string $amount): string
     return preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', $integer)
         . ',' . str_pad(substr($fraction, 0, 2), 2, '0') . ' ₫';
 }
+
+function order_status_classes(): array
+{
+    return [
+        'pending' => 'bg-warning text-dark',
+        'confirmed' => 'bg-primary',
+        'shipping' => 'bg-info text-dark',
+        'completed' => 'bg-success',
+        'cancelled' => 'bg-danger'
+    ];
+}

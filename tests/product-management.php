@@ -169,6 +169,8 @@ try {
     require __DIR__ . '/admin-order-detail.php';
     require __DIR__ . '/admin-order-list.php';
     require __DIR__ . '/product-mvc.php';
+    require __DIR__ . '/order-mvc.php';
+    require __DIR__ . '/dashboard-mvc.php';
     echo "Completed $checks checks. Live database untouched.\n";
 } finally {
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }

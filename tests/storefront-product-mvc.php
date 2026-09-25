@@ -53,15 +53,16 @@ foreach (['','?id=0','?id=-1','?id=abc','?id=1.5','?id=2147483648','?id=21474836
     check($status === 404 && str_contains($html, 'Không tìm thấy sản phẩm') && str_contains($html, 'navbar') && str_contains($html, 'href="products.php"') && !str_contains($html, 'name="product_id"'), 'Friendly strict product 404: ' . $query);
 }
 check($beforeProducts === $db->query('SELECT id,price,stock FROM products ORDER BY id')->fetch_all(MYSQLI_ASSOC), 'Invalid GET/injection does not mutate products');
-[$status, , $headers] = request('actions/add_cart.php', ['product_id'=>$catalogId,'quantity'=>2]);
-check($status === 302 && str_contains($headers, '../pages/cart.php'), 'Existing add_cart redirects to cart');
+$cartToken = customer_test_dom($detail)->query('//input[@name="csrf_token"]')->item(0)->getAttribute('value');
+[$status, , $headers] = request('actions/add_cart.php', ['product_id'=>$catalogId,'quantity'=>2,'csrf_token'=>$cartToken]);
+check($status === 303 && str_contains($headers, '../pages/cart.php'), 'Existing add_cart redirects to cart');
 foreach (['pages/products.php','pages/product-detail.php?id=' . $catalogId] as $path) {
     $dom = customer_test_dom(request($path)[1]);
     check(trim($dom->query('//nav//span[contains(@class,"badge")]')->item(0)->textContent) === '2', 'Cart count survives MVC rendering: ' . $path);
 }
 $cart = request('pages/cart.php')[1];
 check(str_contains($cart, 'name="quantities[' . $catalogId . ']"') && str_contains($cart, 'value="2"'), 'Cart contains selected product and quantity');
-request('actions/add_cart.php', ['product_id'=>$catalogId,'quantity'=>100]);
+request('actions/add_cart.php', ['product_id'=>$catalogId,'quantity'=>100,'csrf_token'=>$cartToken]);
 $badge = customer_test_dom(request('pages/products.php')[1])->query('//nav//span[contains(@class,"badge")]')->item(0);
 check(trim($badge->textContent) === '7', 'Existing cart stock cap retained');
 check($beforeProducts === $db->query('SELECT id,price,stock FROM products ORDER BY id')->fetch_all(MYSQLI_ASSOC), 'Adding to session cart does not change price or stock');

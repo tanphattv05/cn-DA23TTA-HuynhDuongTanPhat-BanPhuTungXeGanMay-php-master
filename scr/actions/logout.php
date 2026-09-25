@@ -1,12 +1,9 @@
 <?php
 session_start();
 
-/*
- * Chỉ xóa thông tin đăng nhập.
- * Giữ lại giỏ hàng hiện tại của khách.
- */
-unset($_SESSION['user']);
-
+// Preserve only the cart; discard authentication, recipient data and old tokens.
+$cart = is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : [];
+$_SESSION = ['cart' => $cart];
 session_regenerate_id(true);
 
 header('Location: ../index.php');

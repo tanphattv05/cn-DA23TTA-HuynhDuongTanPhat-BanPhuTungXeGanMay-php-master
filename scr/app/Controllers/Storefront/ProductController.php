@@ -2,6 +2,7 @@
 namespace MotoParts\App\Controllers\Storefront;
 
 use MotoParts\App\Core\View;
+use MotoParts\App\Core\CartCsrf;
 use MotoParts\App\Models\StorefrontProduct;
 
 if (!defined('MOTOPARTS_MVC_ENTRY')) {
@@ -76,6 +77,7 @@ final class ProductController
                 $error = $this->unavailable($exception);
             }
         }
-        View::storefront('storefront/products/detail', compact('product', 'error', 'canAddToCart'));
+        $csrfToken = CartCsrf::token();
+        View::storefront('storefront/products/detail', compact('product', 'error', 'canAddToCart', 'csrfToken'));
     }
 }

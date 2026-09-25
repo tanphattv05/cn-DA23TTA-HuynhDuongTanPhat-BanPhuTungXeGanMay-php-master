@@ -36,6 +36,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
                 <p><?= nl2br(htmlspecialchars($product['description'] ?? '', ENT_QUOTES, 'UTF-8')) ?></p>
                 <?php if ($canAddToCart): ?>
     <form action="../actions/add_cart.php" method="post" class="mb-3">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="product_id"
                value="<?= (int) $product['id'] ?>">
 

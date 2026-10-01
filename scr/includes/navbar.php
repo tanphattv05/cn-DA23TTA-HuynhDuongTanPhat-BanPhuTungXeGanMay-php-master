@@ -1,4 +1,7 @@
 <?php
+if (!defined('MOTOPARTS_MVC_ENTRY')) define('MOTOPARTS_MVC_ENTRY', true);
+require_once __DIR__ . '/../app/bootstrap.php';
+$authCsrfToken = \MotoParts\App\Core\AuthCsrf::token();
 $baseUrl =
     '/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr';
 
@@ -75,10 +78,9 @@ if (!empty($_SESSION['cart'])) {
                     ) ?>
                 </span>
 
-                <a class="nav-link"
-                href="<?= $baseUrl ?>/actions/logout.php">
+                <form action="<?= $baseUrl ?>/actions/logout.php" method="post"><input type="hidden" name="auth_csrf_token" value="<?= htmlspecialchars($authCsrfToken, ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="nav-link border-0 bg-transparent">
                     Đăng xuất
-                </a>
+                </button></form>
             <?php else: ?>
                 <a class="nav-link"
                 href="<?= $baseUrl ?>/pages/login.php">

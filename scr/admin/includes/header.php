@@ -1,4 +1,7 @@
 <?php
+if (!defined('MOTOPARTS_MVC_ENTRY')) define('MOTOPARTS_MVC_ENTRY', true);
+require_once __DIR__ . '/../../app/bootstrap.php';
+$authCsrfToken = \MotoParts\App\Core\AuthCsrf::token();
 $pageTitle = $pageTitle ?? 'Quản trị MotoParts';
 $currentPage = basename($_SERVER['SCRIPT_NAME']);
 
@@ -63,10 +66,9 @@ $assetUrl = $adminUrl . '/assets/adminlte';
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link"
-                       href="<?= $baseUrl ?>/actions/logout.php">
+                    <form action="<?= $baseUrl ?>/actions/logout.php" method="post"><input type="hidden" name="auth_csrf_token" value="<?= htmlspecialchars($authCsrfToken, ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="nav-link border-0 bg-transparent">
                         Đăng xuất
-                    </a>
+                    </button></form>
                 </li>
             </ul>
         </div>
@@ -137,10 +139,9 @@ $assetUrl = $adminUrl . '/assets/adminlte';
                     </li>
 
                     <li class="nav-item">
-                        <a href="<?= $baseUrl ?>/actions/logout.php"
-                           class="nav-link">
+                        <form action="<?= $baseUrl ?>/actions/logout.php" method="post"><input type="hidden" name="auth_csrf_token" value="<?= htmlspecialchars($authCsrfToken, ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="nav-link border-0 bg-transparent">
                             <p>Đăng xuất</p>
-                        </a>
+                        </button></form>
                     </li>
 
                 </ul>

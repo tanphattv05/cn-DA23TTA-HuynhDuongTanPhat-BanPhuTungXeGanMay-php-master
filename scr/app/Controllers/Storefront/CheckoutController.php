@@ -34,9 +34,9 @@ final class CheckoutController
     private function userId(): ?int
     {
         if (!isset($_SESSION['user'])) return null;
-        $id = is_array($_SESSION['user']) ? CartService::integer($_SESSION['user']['id'] ?? null) : null;
-        if ($id === null) throw new \DomainException('Tài khoản không hợp lệ. Vui lòng đăng nhập lại.');
-        return $id;
+        $user = \MotoParts\App\Middleware\Authenticate::current();
+        if ($user === null) throw new \DomainException('Tài khoản không hợp lệ. Vui lòng đăng nhập lại.');
+        return $user['id'];
     }
 
     private function databaseError(\Throwable $exception): string

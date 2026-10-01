@@ -174,6 +174,7 @@ try {
     require __DIR__ . '/storefront-product-mvc.php';
     require __DIR__ . '/cart-mvc.php';
     require __DIR__ . '/checkout-mvc.php';
+    require __DIR__ . '/auth-mvc.php';
     echo "Completed $checks checks. Live database untouched.\n";
 } finally {
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }

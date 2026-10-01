@@ -1,15 +1,8 @@
 <?php
-session_start();
-
-require_once __DIR__ . '/../config/database.php';
-
-if (!isset($_SESSION['user'])) {
-    $_SESSION['login_error'] =
-        'Vui lòng đăng nhập để xem đơn hàng.';
-
-    header('Location: login.php');
-    exit;
-}
+if (!defined('MOTOPARTS_MVC_ENTRY')) define('MOTOPARTS_MVC_ENTRY', true);
+require_once __DIR__ . '/../app/bootstrap.php';
+\MotoParts\App\Middleware\Authenticate::requireUser();
+$conn = \MotoParts\App\Middleware\Authenticate::connection();
 
 $orderId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $userId = (int) $_SESSION['user']['id'];

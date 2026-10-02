@@ -3,13 +3,7 @@ require_once __DIR__ . '/product-bootstrap.php';
 
 function order_status_labels(): array
 {
-    return [
-        'pending' => 'Chờ xác nhận',
-        'confirmed' => 'Đã xác nhận',
-        'shipping' => 'Đang giao hàng',
-        'completed' => 'Đã hoàn thành',
-        'cancelled' => 'Đã hủy'
-    ];
+    return \MotoParts\App\Core\OrderStatus::labels();
 }
 
 function order_transitions(): array
@@ -33,11 +27,5 @@ function order_money(string $amount): string
 
 function order_status_classes(): array
 {
-    return [
-        'pending' => 'bg-warning text-dark',
-        'confirmed' => 'bg-primary',
-        'shipping' => 'bg-info text-dark',
-        'completed' => 'bg-success',
-        'cancelled' => 'bg-danger'
-    ];
+    return \MotoParts\App\Core\OrderStatus::classes();
 }

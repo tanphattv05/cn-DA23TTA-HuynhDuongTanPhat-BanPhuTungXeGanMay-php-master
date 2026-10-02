@@ -1,12 +1,5 @@
-<!-- Bootstrap JavaScript -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
-
-<script
-    src="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/assets/js/main.js">
-</script>
-
-</body>
-</html>
+<?php
+// Compatibility entry for modules not migrated yet.
+if (!defined('MOTOPARTS_MVC_ENTRY')) define('MOTOPARTS_MVC_ENTRY', true);
+require_once __DIR__ . '/../backend/bootstrap.php';
+require __DIR__ . '/../frontend/includes/storefront/footer.php';

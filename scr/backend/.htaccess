@@ -1,0 +1,2 @@
+# Internal application code is included by public entrypoints, never served.
+Require all denied

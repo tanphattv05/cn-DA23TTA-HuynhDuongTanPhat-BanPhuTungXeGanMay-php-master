@@ -1,0 +1,2 @@
+# PHP templates/layouts are rendered by the backend, not opened directly.
+Require all denied

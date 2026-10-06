@@ -1,4 +1,4 @@
 <?php
 define('MOTOPARTS_MVC_ENTRY', true);
-require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
 (new \MotoParts\App\Controllers\Admin\CategoryController())->index();

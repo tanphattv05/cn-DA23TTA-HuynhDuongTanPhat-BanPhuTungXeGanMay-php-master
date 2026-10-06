@@ -1,0 +1,3 @@
+# Repository metadata and documentation are not public website endpoints.
+Options -Indexes
+RedirectMatch 403 "(?i)(?:^|/)(?:\.git|\.codex|\.agents|\.aws|docs|tests|thesis)(?:/|$)"

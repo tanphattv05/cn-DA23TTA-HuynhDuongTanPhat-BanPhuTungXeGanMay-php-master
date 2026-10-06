@@ -2,7 +2,7 @@
 if (PHP_SAPI !== 'cli' || !isset($app, $db, $testName) || !preg_match('/\Amotoparts_test_[a-f0-9]+\z/', $testName)) exit("Run isolated harness.\n");
 $dashboardStart = $checks;
 $originalCookie = $cookie;
-$paths = ['app/Models/Dashboard.php', 'app/Controllers/Admin/DashboardController.php', 'app/Views/admin/dashboard/index.php'];
+$paths = ['backend/Models/Dashboard.php', 'backend/Controllers/Admin/DashboardController.php', 'frontend/Views/admin/dashboard/index.php'];
 foreach (['admin', 'anonymous', 'customer'] as $actor) {
     $cookie = $actor === 'anonymous' ? $temp . '/anonymous-dashboard.txt' : $originalCookie;
     if ($actor !== 'anonymous') request('test-session.php?id=' . ($actor === 'admin' ? 1 : 2));
@@ -64,10 +64,10 @@ check(str_contains($html, 'Recipient &lt;script&gt;test&lt;/script&gt;') && !str
 check(substr_count($html, 'class="nav-link active"') === 1 && preg_match('~href="[^"]+/admin/index.php"\s+class="nav-link active"~', $html), 'Only dashboard sidebar is active');
 check($beforeOrders === $db->query('SELECT id,status,total FROM orders ORDER BY id')->fetch_all(MYSQLI_ASSOC) && $beforeStock === order_test_stock(), 'Dashboard read does not change orders or stock');
 check(request('admin/' . $links[0])[0] === 200, 'Recent order link opens Admin detail');
-$modelSource = file_get_contents($app . '/app/Models/Dashboard.php');
+$modelSource = file_get_contents($app . '/backend/Models/Dashboard.php');
 check(!preg_match('/\b(INSERT|UPDATE|DELETE|REPLACE|ALTER|DROP)\b|password|\$_(GET|POST|SESSION)/', $modelSource), 'Dashboard model is read-only without request or password access');
-check(!preg_match('/\b(SELECT|mysqli)\b/', file_get_contents($app . '/app/Controllers/Admin/DashboardController.php')), 'Dashboard controller contains no SQL');
-check(!preg_match('/\b(SELECT|mysqli)\b|\$_(GET|POST|SESSION)/', file_get_contents($app . '/app/Views/admin/dashboard/index.php')), 'Dashboard view contains no SQL or request handling');
+check(!preg_match('/\b(SELECT|mysqli)\b/', file_get_contents($app . '/backend/Controllers/Admin/DashboardController.php')), 'Dashboard controller contains no SQL');
+check(!preg_match('/\b(SELECT|mysqli)\b|\$_(GET|POST|SESSION)/', file_get_contents($app . '/frontend/Views/admin/dashboard/index.php')), 'Dashboard view contains no SQL or request handling');
 check(str_contains(file_get_contents($app . '/admin/index.php'), 'DashboardController') && strlen(file_get_contents($app . '/admin/index.php')) < 250, 'Legacy dashboard URL is thin entry');
 // Simulate query failure only in the disposable database, restore immediately.
 $db->query('RENAME TABLE orders TO dashboard_orders_unavailable');

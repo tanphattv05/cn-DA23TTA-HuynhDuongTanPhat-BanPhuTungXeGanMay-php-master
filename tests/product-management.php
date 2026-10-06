@@ -5,7 +5,7 @@ if (PHP_SAPI !== 'cli' || !in_array('--isolated', $argv, true)) {
 }
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $root = dirname(__DIR__);
-require $root . '/scr/config/database.php';
+define('MOTOPARTS_MVC_ENTRY', true); require $root . '/scr/backend/config/database.php';
 $live = $conn;
 $testName = 'motoparts_test_' . bin2hex(random_bytes(6));
 $temp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $testName;
@@ -55,10 +55,10 @@ try {
         copy($file->getPathname(), $target);
     }
     mkdir($app . '/assets/images/products', 0777, true);
-    $config = "<?php mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); \$conn = new mysqli("
+    $config = "<?php if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; } mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); \$conn = new mysqli("
         . var_export($host, true) . ',' . var_export($username, true) . ',' . var_export($password, true)
         . ',' . var_export($testName, true) . "); \$conn->set_charset('utf8mb4');";
-    file_put_contents($app . '/config/database.php', $config);
+    file_put_contents($app . '/backend/config/database.php', $config);
     // This fixture exists only in the temporary copy.
     file_put_contents($app . '/test-session.php', '<?php session_start(); $_SESSION["user"] = ["id" => (int) $_GET["id"]];');
     $cookie = $temp . '/cookies.txt';
@@ -78,7 +78,7 @@ try {
     check(request('admin/products.php')[0] === 302, 'Anonymous redirected to login');
     request('test-session.php?id=2');
     foreach (['products.php','product-form.php','save-product.php','includes/product-bootstrap.php','includes/product-upload.php','includes/product-validation.php'] as $endpoint) {
-        check(request('admin/' . $endpoint)[0] === 403, 'Customer denied ' . $endpoint);
+        check(request(str_starts_with($endpoint, 'includes/') ? 'backend/Support/Admin/' . basename($endpoint) : 'admin/' . $endpoint)[0] === 403, 'Customer denied ' . $endpoint);
     }
     check(request('admin/save-product.php', ['name'=>'attack'])[0] === 403, 'Customer POST denied');
     request('test-session.php?id=1');
@@ -177,6 +177,9 @@ try {
     require __DIR__ . '/auth-mvc.php';
     require __DIR__ . '/storefront-order-mvc.php';
     require __DIR__ . '/frontend-foundation.php';
+    require __DIR__ . '/storefront-migration.php';
+    require __DIR__ . '/admin-migration.php';
+    require __DIR__ . '/architecture-finalization.php';
     echo "Completed $checks checks. Live database untouched.\n";
 } finally {
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }

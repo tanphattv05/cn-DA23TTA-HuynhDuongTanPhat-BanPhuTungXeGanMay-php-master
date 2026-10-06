@@ -12,10 +12,8 @@ final class View
     {
         // Callers validate the template name before resolution. No request paths.
         $websiteRoot = dirname(__DIR__, 2);
-        foreach ([$websiteRoot . '/frontend/Views', $websiteRoot . '/app/Views'] as $root) {
-            $file = $root . '/' . $template . '.php';
-            if (is_file($file)) return $file;
-        }
+        $file = $websiteRoot . '/frontend/Views/' . $template . '.php';
+        if (is_file($file)) return $file;
         throw new \RuntimeException('View unavailable.');
     }
 
@@ -31,10 +29,10 @@ final class View
         }
         global $baseUrl;
         extract($variables, EXTR_SKIP);
-        $adminDirectory = dirname(__DIR__, 2) . '/admin';
-        require $adminDirectory . '/includes/header.php';
+        $adminDirectory = dirname(__DIR__, 2) . '/frontend/includes/admin';
+        require $adminDirectory . '/header.php';
         require $file;
-        require $adminDirectory . '/includes/footer.php';
+        require $adminDirectory . '/footer.php';
     }
 
     public static function storefront(string $template, array $variables): void

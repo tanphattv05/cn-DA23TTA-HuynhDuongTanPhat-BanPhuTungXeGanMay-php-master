@@ -1,2 +1,0 @@
-# Internal PHP application code must never be served directly.
-Require all denied

@@ -24,15 +24,15 @@ foreach (['customer','admin'] as $role) {
     check($xpath->query('//form[contains(@action,"logout.php") and @method="post"]/input[@name="auth_csrf_token"]')->length===1, 'Navbar logout remains POST with CSRF: '.$role);
     check(str_contains($html,'/scr/admin/index.php')===($role==='admin'), 'Navbar Admin link matches session role: '.$role);
 }
-file_put_contents($app . '/foundation-wrapper.php', '<?php require __DIR__."/includes/header.php"; require __DIR__."/includes/navbar.php"; echo "<main>Wrapper fixture</main>"; require __DIR__."/includes/footer.php";');
+file_put_contents($app . '/foundation-wrapper.php', '<?php define("MOTOPARTS_MVC_ENTRY",true); require __DIR__."/backend/bootstrap.php"; require __DIR__."/frontend/includes/storefront/header.php"; require __DIR__."/frontend/includes/storefront/navbar.php"; echo "<main>Wrapper fixture</main>"; require __DIR__."/frontend/includes/storefront/footer.php";');
 [$status,$html]=request('foundation-wrapper.php');
-check($status===200 && substr_count($html,'<!DOCTYPE html>')===1 && str_contains($html,'Wrapper fixture') && substr_count($html,'id="mainNavbar"')===1, 'Legacy includes forward to new layout once');
+check($status===200 && substr_count($html,'<!DOCTYPE html>')===1 && str_contains($html,'Wrapper fixture') && substr_count($html,'id="mainNavbar"')===1, 'Canonical layout renders once');
 foreach (['backend/bootstrap.php','backend/Core/View.php','backend/Controllers/Storefront/HomeController.php','frontend/Views/storefront/home/index.php','frontend/includes/storefront/header.php','frontend/includes/storefront/navbar.php','frontend/includes/storefront/footer.php'] as $path) {
     check(request($path)[0]===403, 'Foundation internal file denied: '.$path);
 }
 foreach (['header','navbar','footer'] as $part) {
-    $source=file_get_contents($app.'/includes/'.$part.'.php');
-    check(strlen($source)<500 && str_contains($source,'frontend/includes/storefront/') && !str_contains($source,'<nav'), 'Single source layout via wrapper: '.$part);
+    $source = $app.'/includes/'.$part.'.php';
+    check(!is_file($source), 'Obsolete layout wrapper removed: '.$part);
 }
 check(strlen(file_get_contents($app.'/index.php'))<400 && str_contains(file_get_contents($app.'/index.php'),'HomeController'), 'Home entry is thin');
 check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b|\$_SESSION/',file_get_contents($app.'/frontend/Views/storefront/home/index.php')), 'Home View receives data without DB/session');

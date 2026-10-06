@@ -85,7 +85,7 @@ check(request('admin/orders.php?status=pending')[0]===302, 'Anonymous list denie
 $cookie=$anonymousCookie;
 request('test-session.php?id=2');
 check(request('admin/orders.php?status=pending')[0]===403, 'Customer list denied');
-check(request('admin/includes/order-filters.php')[0]===403, 'Customer filter helper denied');
+check(request('backend/Support/Admin/order-filters.php')[0]===403, 'Customer filter helper denied');
 request('test-session.php?id=1');
 $r=list_result($context+['page'=>'3']);
 check(substr_count($r[1],'class="nav-link active"')===1 && str_contains($r[1],'table-responsive'), 'Sidebar and responsive table preserved');

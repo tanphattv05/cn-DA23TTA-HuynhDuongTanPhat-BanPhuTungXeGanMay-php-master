@@ -16,7 +16,7 @@ copy($root . '/scr/assets/js/main.js', $app . '/assets/js/main.js');
 file_put_contents($app . '/storefront-session.php', '<?php session_start(); $id=(int)($_GET["id"]??0); if ($id) { $_SESSION["user"]=["id"=>$id,"fullname"=>"Viewer <b>Name</b>","role"=>$id===1?"admin":"customer"]; } else { unset($_SESSION["user"]); } $_SESSION["cart"]=[];');
 $originalCookie = $cookie;
 $cookie = $temp . '/storefront-cookie.txt';
-$internal = ['app/Models/StorefrontProduct.php','app/Controllers/Storefront/ProductController.php','app/Views/storefront/products/index.php','app/Views/storefront/products/detail.php'];
+$internal = ['backend/Models/StorefrontProduct.php','backend/Controllers/Storefront/ProductController.php','frontend/Views/storefront/products/index.php','frontend/Views/storefront/products/detail.php'];
 foreach (['anonymous'=>0,'customer'=>2,'admin'=>1] as $actor=>$actorId) {
     request('storefront-session.php?id=' . $actorId);
     foreach (['pages/products.php','pages/product-detail.php?id=' . $catalogId] as $path) {
@@ -76,11 +76,11 @@ foreach (['products.php','product-detail.php'] as $entry) {
     $source = file_get_contents($app . '/pages/' . $entry);
     check(str_contains($source, 'Controllers\\Storefront\\ProductController') && strlen($source)<250, 'Thin legacy storefront entry: ' . $entry);
 }
-check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/', file_get_contents($app . '/app/Controllers/Storefront/ProductController.php')), 'Storefront controller has no SQL');
-$modelSource = file_get_contents($app . '/app/Models/StorefrontProduct.php');
+check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/', file_get_contents($app . '/backend/Controllers/Storefront/ProductController.php')), 'Storefront controller has no SQL');
+$modelSource = file_get_contents($app . '/backend/Models/StorefrontProduct.php');
 check(!preg_match('/\$_(GET|POST|SESSION)|password|\b(INSERT|UPDATE|DELETE)\b/', $modelSource), 'Storefront model is read-only without request or sensitive data');
 foreach (['index','detail'] as $view) {
-    check(!preg_match('/\b(SELECT|mysqli_query)\b|\$_(GET|POST)/', file_get_contents($app . '/app/Views/storefront/products/' . $view . '.php')), 'Storefront view has no SQL or request: ' . $view);
+    check(!preg_match('/\b(SELECT|mysqli_query)\b|\$_(GET|POST)/', file_get_contents($app . '/frontend/Views/storefront/products/' . $view . '.php')), 'Storefront view has no SQL or request: ' . $view);
 }
 $db->query('RENAME TABLE products TO storefront_products_unavailable');
 try {
@@ -89,7 +89,7 @@ try {
         check($status === 503 && str_contains($html, 'Không thể tải sản phẩm') && str_contains($html, 'navbar') && !str_contains($html, $testName) && !str_contains($html, 'SELECT'), 'Query failure is safe with layout: ' . $path);
     }
 } finally { $db->query('RENAME TABLE storefront_products_unavailable TO products'); }
-$configPath = $app . '/config/database.php';
+$configPath = $app . '/backend/config/database.php';
 $configSource = file_get_contents($configPath);
 try {
     file_put_contents($configPath, "<?php throw new mysqli_sql_exception('private-connection-data', 2002);");

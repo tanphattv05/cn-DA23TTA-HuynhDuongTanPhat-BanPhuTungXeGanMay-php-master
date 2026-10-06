@@ -172,17 +172,17 @@ try {
     [$status,$html]=request('pages/checkout.php');
     check($status===503 && str_contains($html,'navbar') && str_contains($html,'Không thể xử lý thanh toán') && !str_contains($html,$testName), 'Checkout read error returns safe 503 layout');
 } finally { $db->query('RENAME TABLE checkout_products_unavailable TO products'); }
-foreach (['app/Models/Checkout.php','app/Services/CheckoutService.php','app/Controllers/Storefront/CheckoutController.php','app/Views/storefront/checkout/index.php','app/Views/storefront/checkout/success.php'] as $path) {
+foreach (['backend/Models/Checkout.php','backend/Services/CheckoutService.php','backend/Controllers/Storefront/CheckoutController.php','frontend/Views/storefront/checkout/index.php','frontend/Views/storefront/checkout/success.php'] as $path) {
     check(request($path)[0]===403,'Checkout internal path forbidden: '.$path);
 }
 foreach (['pages/checkout.php','pages/order-success.php','actions/checkout.php'] as $entry) {
     $source=file_get_contents($app.'/'.$entry);
     check(strlen($source)<250 && str_contains($source,'CheckoutController'),'Thin checkout entry: '.$entry);
 }
-check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/app/Controllers/Storefront/CheckoutController.php')),'Checkout controller has no SQL');
-check(!preg_match('/\$_(GET|POST|SESSION)|password/',file_get_contents($app.'/app/Models/Checkout.php')),'Checkout model has no request/session/password');
-check(!preg_match('/\$_(GET|POST|SESSION)|<html|echo\s/',file_get_contents($app.'/app/Services/CheckoutService.php')),'Checkout service has no request/session/HTML');
-foreach (['index','success'] as $view) check(!preg_match('/\b(SELECT|mysqli_query)\b|\$_(GET|POST|SESSION)/',file_get_contents($app.'/app/Views/storefront/checkout/'.$view.'.php')),'Checkout view only renders: '.$view);
+check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/backend/Controllers/Storefront/CheckoutController.php')),'Checkout controller has no SQL');
+check(!preg_match('/\$_(GET|POST|SESSION)|password/',file_get_contents($app.'/backend/Models/Checkout.php')),'Checkout model has no request/session/password');
+check(!preg_match('/\$_(GET|POST|SESSION)|<html|echo\s/',file_get_contents($app.'/backend/Services/CheckoutService.php')),'Checkout service has no request/session/HTML');
+foreach (['index','success'] as $view) check(!preg_match('/\b(SELECT|mysqli_query)\b|\$_(GET|POST|SESSION)/',file_get_contents($app.'/frontend/Views/storefront/checkout/'.$view.'.php')),'Checkout view only renders: '.$view);
 
 // DECIMAL boundary: reject overflow before multiplication; preserve all writes atomically.
 $db->query('UPDATE products SET stock=2147483647,price=9999999999.99 WHERE id='.$checkoutA);
@@ -200,7 +200,7 @@ check($boundaryOrder['total']==='9999999999.99' && $db->query('SELECT SUM(price*
 // Parent holds the product lock until both workers have started.
 $db->query('UPDATE products SET stock=5,price=3.09 WHERE id='.$checkoutA);
 $workerPath=$temp.'/checkout-worker.php';
-$workerCode = "<?php\nif (PHP_SAPI !== 'cli') exit;\ndefine('MOTOPARTS_MVC_ENTRY',true);\nrequire " . var_export($app.'/app/bootstrap.php',true) . ";\nrequire " . var_export($app.'/config/database.php',true) . ";\n";
+$workerCode = "<?php\nif (PHP_SAPI !== 'cli') exit;\ndefine('MOTOPARTS_MVC_ENTRY',true);\nrequire " . var_export($app.'/backend/bootstrap.php',true) . ";\nrequire " . var_export($app.'/backend/config/database.php',true) . ";\n";
 $workerCode .= '$model = new \\MotoParts\\App\\Models\\Checkout($conn); $service = new \\MotoParts\\App\\Services\\CheckoutService($model);' . "\n";
 $workerCode .= <<<'PHP'
 file_put_contents($argv[2].'.ready','ready');

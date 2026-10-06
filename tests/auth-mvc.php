@@ -100,21 +100,21 @@ check(request('pages/my-orders.php')[0]===302 && !isset(auth_state()['session'][
 request('auth-state.php',['user_id'=>1,'role'=>'invalid']);
 check(request('admin/index.php')[0]!==200 && !isset(auth_state()['session']['user']),'Invalid session role is rejected');
 foreach (['Controllers/Storefront/AuthController.php','Models/UserAuth.php','Services/AuthService.php','Middleware/Authenticate.php','Middleware/RequireRole.php','Core/AuthCsrf.php','Views/storefront/auth/login.php','Views/storefront/auth/register.php'] as $path) {
-    check(request('app/'.$path)[0]===403,'Auth internal file denied: '.$path);
+    check(request((str_starts_with($path,'Views/')?'frontend/':'backend/').$path)[0]===403,'Auth internal file denied: '.$path);
 }
-foreach (['pages/login.php','pages/register.php','actions/login.php','actions/register.php','actions/logout.php','admin/auth.php'] as $path) {
+foreach (['pages/login.php','pages/register.php','actions/login.php','actions/register.php','actions/logout.php','backend/Middleware/admin.php'] as $path) {
     $source=file_get_contents($app.'/'.$path);
     check(strlen($source)<700 && !preg_match('/\bSELECT\b|mysqli_query/',$source),'Thin auth entry: '.$path);
 }
-check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/app/Controllers/Storefront/AuthController.php')),'Auth Controller has no SQL');
-check(!preg_match('/\$_(GET|POST|SESSION)|SELECT\s+\*/i',file_get_contents($app.'/app/Models/UserAuth.php')),'Auth Model has no request or wildcard SELECT');
-check(!preg_match('/\$_(GET|POST)|\b(SELECT|INSERT|UPDATE|DELETE)\b|<html/',file_get_contents($app.'/app/Services/AuthService.php')),'Auth Service has no SQL/request/HTML');
-foreach (['login','register'] as $view) check(!preg_match('/\bSELECT\b|mysqli_query|\$_POST/',file_get_contents($app.'/app/Views/storefront/auth/'.$view.'.php')),'Auth View only renders: '.$view);
+check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/backend/Controllers/Storefront/AuthController.php')),'Auth Controller has no SQL');
+check(!preg_match('/\$_(GET|POST|SESSION)|SELECT\s+\*/i',file_get_contents($app.'/backend/Models/UserAuth.php')),'Auth Model has no request or wildcard SELECT');
+check(!preg_match('/\$_(GET|POST)|\b(SELECT|INSERT|UPDATE|DELETE)\b|<html/',file_get_contents($app.'/backend/Services/AuthService.php')),'Auth Service has no SQL/request/HTML');
+foreach (['login','register'] as $view) check(!preg_match('/\bSELECT\b|mysqli_query|\$_POST/',file_get_contents($app.'/frontend/Views/storefront/auth/'.$view.'.php')),'Auth View only renders: '.$view);
 check(!str_contains(file_get_contents($temp.'/server.log'),$secret),'No raw password in server log');
 // Two PHP processes use separate DB connections; the second reaches the unique
 // insert while the first registration is still uncommitted (not visible to its precheck).
 $workerPath=$temp.'/auth-worker.php';
-$workerCode="<?php\nif (PHP_SAPI !== 'cli') exit;\ndefine('MOTOPARTS_MVC_ENTRY',true);\nrequire ".var_export($app.'/app/bootstrap.php',true).";\nrequire ".var_export($app.'/config/database.php',true).";\n";
+$workerCode="<?php\nif (PHP_SAPI !== 'cli') exit;\ndefine('MOTOPARTS_MVC_ENTRY',true);\nrequire ".var_export($app.'/backend/bootstrap.php',true).";\nrequire ".var_export($app.'/backend/config/database.php',true).";\n";
 $workerCode.= <<<'PHP'
 $service=new \MotoParts\App\Services\AuthService(new \MotoParts\App\Models\UserAuth($conn));
 $holder=$argv[2]==='holder';

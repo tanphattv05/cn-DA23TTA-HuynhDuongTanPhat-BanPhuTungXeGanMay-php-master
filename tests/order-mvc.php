@@ -2,10 +2,10 @@
 if (PHP_SAPI !== 'cli' || !isset($app, $db)) exit("Run isolated harness.\n");
 $orderMvcStart = $checks;
 $internalPaths = [
-    'app/Models/Order.php',
-    'app/Controllers/Admin/OrderController.php',
-    'app/Views/admin/orders/index.php',
-    'app/Views/admin/orders/detail.php'
+    'backend/Models/Order.php',
+    'backend/Controllers/Admin/OrderController.php',
+    'frontend/Views/admin/orders/index.php',
+    'frontend/Views/admin/orders/detail.php'
 ];
 $originalCookie = $cookie;
 foreach (['admin', 'anonymous', 'customer'] as $actor) {
@@ -29,13 +29,13 @@ foreach (['admin', 'anonymous', 'customer'] as $actor) {
 $cookie = $originalCookie;
 request('test-session.php?id=1');
 
-$modelSource = file_get_contents($app . '/app/Models/Order.php');
+$modelSource = file_get_contents($app . '/backend/Models/Order.php');
 check(!preg_match('/password|SELECT\s+(?:[a-z]+\.)?\*/i', $modelSource), 'Order model selects explicit columns without passwords');
 check(!preg_match('/\$_(GET|POST|SESSION)|header\s*\(/', $modelSource), 'Order model has no HTTP/session behavior');
-$controllerSource = file_get_contents($app . '/app/Controllers/Admin/OrderController.php');
+$controllerSource = file_get_contents($app . '/backend/Controllers/Admin/OrderController.php');
 check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/', $controllerSource), 'Order controller has no SQL');
 foreach (['index', 'detail'] as $template) {
-    $source = file_get_contents($app . '/app/Views/admin/orders/' . $template . '.php');
+    $source = file_get_contents($app . '/frontend/Views/admin/orders/' . $template . '.php');
     check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE|mysqli)\b|\$_(POST|GET|SESSION)/', $source), 'Order view has no SQL/request/session: ' . $template);
 }
 foreach (['orders.php', 'order-detail.php', 'update-order.php'] as $entry) {
@@ -46,7 +46,7 @@ foreach (['orders.php', 'order-detail.php', 'update-order.php'] as $entry) {
 // Two real connections to the isolated database prove the model holds the row lock.
 // No HTTP concurrency is assumed: the harness PHP web server is single-threaded.
 if (!defined('MOTOPARTS_MVC_ENTRY')) define('MOTOPARTS_MVC_ENTRY', true);
-require_once $app . '/app/bootstrap.php';
+require_once $app . '/backend/bootstrap.php';
 $lockOrder = fixture_order(2);
 $beforeLockStock = order_test_stock();
 $firstModel = new \MotoParts\App\Models\Order($db);

@@ -120,7 +120,7 @@ request('actions/add_cart.php',array_replace($add,['quantity'=>1]));
 check(cart_state()['cart']==[$cartA=>3], 'Logged-in customer can add');
 request('cart-state.php?role=admin');
 check(request('pages/cart.php')[0]===200, 'Admin can view storefront cart');
-$internal=['app/Models/CartProduct.php','app/Services/CartService.php','app/Core/CartCsrf.php','app/Controllers/Storefront/CartController.php','app/Views/storefront/cart/index.php'];
+$internal=['backend/Models/CartProduct.php','backend/Services/CartService.php','backend/Core/CartCsrf.php','backend/Controllers/Storefront/CartController.php','frontend/Views/storefront/cart/index.php'];
 foreach ($internal as $path) check(request($path)[0]===403,'Internal cart file denied: '.$path);
 $authHtml=request('pages/cart.php')[1];
 $authToken=customer_test_dom($authHtml)->query('//form[contains(@action,"logout.php")]/input[@name="auth_csrf_token"]')->item(0)->getAttribute('value');
@@ -153,9 +153,9 @@ foreach (['pages/cart.php','actions/add_cart.php','actions/update_cart.php','act
     $source=file_get_contents($app.'/'.$entry);
     check(strlen($source)<250 && str_contains($source,'CartController'),'Thin cart entry: '.$entry);
 }
-check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/app/Controllers/Storefront/CartController.php')),'Cart controller has no SQL');
-check(!preg_match('/\$_(GET|POST|SESSION)/',file_get_contents($app.'/app/Models/CartProduct.php')),'Cart model has no request/session');
-check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/app/Services/CartService.php')),'Cart service has no SQL');
-check(!preg_match('/\b(SELECT|mysqli)\b|\$_(GET|POST)/',file_get_contents($app.'/app/Views/storefront/cart/index.php')),'Cart view has no SQL/request');
+check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/backend/Controllers/Storefront/CartController.php')),'Cart controller has no SQL');
+check(!preg_match('/\$_(GET|POST|SESSION)/',file_get_contents($app.'/backend/Models/CartProduct.php')),'Cart model has no request/session');
+check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/',file_get_contents($app.'/backend/Services/CartService.php')),'Cart service has no SQL');
+check(!preg_match('/\b(SELECT|mysqli)\b|\$_(GET|POST)/',file_get_contents($app.'/frontend/Views/storefront/cart/index.php')),'Cart view has no SQL/request');
 $cookie=$cartOriginalCookie;
 echo 'Cart MVC checks completed: '.($checks-$cartStart).PHP_EOL;

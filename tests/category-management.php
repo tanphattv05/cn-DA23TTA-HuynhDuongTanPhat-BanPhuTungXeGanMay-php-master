@@ -11,7 +11,7 @@ $categorySnapshot = static function () use ($db) {
 };
 request('test-session.php?id=2');
 foreach (['categories.php', 'category-form.php', 'save-category.php', 'includes/category-input.php'] as $path) {
-    check(request('admin/' . $path)[0] === 403, 'Category customer denied: ' . $path);
+    check(request(str_starts_with($path, 'includes/') ? 'backend/Support/Admin/' . basename($path) : 'admin/' . $path)[0] === 403, 'Category customer denied: ' . $path);
 }
 $before = $categorySnapshot();
 check(request('admin/save-category.php', ['id'=>'','name'=>'Forbidden'])[0] === 403, 'Customer category POST denied');
@@ -30,7 +30,7 @@ check($createdCategory && $createdCategory['description'] === 'New description',
 $newId = (string) $createdCategory['id'];
 check(str_contains(request('admin/categories.php')[1], 'Đã thêm danh mục.'), 'Create success flash');
 foreach (['product-form.php', 'product-form.php?id=1'] as $path) {
-    check(str_contains(request('admin/' . $path)[1], '>New category</option>'), 'New category appears in product dropdown: ' . $path);
+    check(str_contains(request(str_starts_with($path, 'includes/') ? 'backend/Support/Admin/' . basename($path) : 'admin/' . $path)[1], '>New category</option>'), 'New category appears in product dropdown: ' . $path);
 }
 $edit = array_replace($data, ['id'=>$newId, 'name'=>'New category', 'description'=>'Updated']);
 request('admin/save-category.php', $edit);
@@ -104,7 +104,7 @@ request('admin/save-category.php', array_replace($edit, ['name'=>'<script>alert(
 $html = request('admin/categories.php?q=alert')[1];
 check(str_contains($html,'&lt;script&gt;') && str_contains($html,'&lt;img') && !str_contains($html,'<script>alert(1)</script>'), 'Category name and description escaped');
 foreach (['categories.php','category-form.php','category-form.php?id=1','products.php','product-form.php'] as $path) {
-    $html = request('admin/' . $path)[1];
+    $html = request(str_starts_with($path, 'includes/') ? 'backend/Support/Admin/' . basename($path) : 'admin/' . $path)[1];
     check(substr_count($html,'class="nav-link active"') === 1, 'One active sidebar item: ' . $path);
 }
 check($productsBefore === $db->query('SELECT * FROM products ORDER BY id')->fetch_all(MYSQLI_ASSOC), 'Category suite leaves all product fields unchanged');

@@ -113,14 +113,14 @@ foreach (['orders', 'order_details'] as $table) {
     } finally { $db->query('RENAME TABLE history_unavailable TO ' . $table); }
 }
 foreach (['Controllers/Storefront/OrderController.php','Models/StorefrontOrder.php','Views/storefront/orders/index.php','Views/storefront/orders/detail.php','Core/OrderStatus.php'] as $path) {
-    check(request('app/' . $path)[0] === 403, 'History internal denied: ' . $path);
+    check(request((str_starts_with($path, 'Views/') ? 'frontend/' : 'backend/') . $path)[0] === 403, 'History internal denied: ' . $path);
 }
-$controller = file_get_contents($app . '/app/Controllers/Storefront/OrderController.php');
-$model = file_get_contents($app . '/app/Models/StorefrontOrder.php');
+$controller = file_get_contents($app . '/backend/Controllers/Storefront/OrderController.php');
+$model = file_get_contents($app . '/backend/Models/StorefrontOrder.php');
 check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b|<div/', $controller), 'History Controller no SQL/HTML');
 check(!preg_match('/\$_(GET|POST|SESSION)|password|SELECT\s+\*/i', $model), 'History Model no request/session/password/wildcard');
 foreach (['index', 'detail'] as $view) {
-    $source = file_get_contents($app . '/app/Views/storefront/orders/' . $view . '.php');
+    $source = file_get_contents($app . '/frontend/Views/storefront/orders/' . $view . '.php');
     check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE|mysqli_query|mysqli_fetch_assoc)\b|\$_(GET|POST|SESSION)/', $source), 'History View renders only: ' . $view);
 }
 $directModel = new \MotoParts\App\Models\StorefrontOrder($db);

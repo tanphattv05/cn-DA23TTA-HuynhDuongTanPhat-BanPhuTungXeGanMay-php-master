@@ -1,5 +1,6 @@
 # File cấu hình riêng
 config/database.local.php
+backend/config/database.local.php
 
 # VS Code
 .vscode/

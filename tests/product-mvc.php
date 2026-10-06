@@ -1,7 +1,7 @@
 <?php
 if (PHP_SAPI !== 'cli' || !isset($app, $db, $root)) exit("Run isolated harness.\n");
 $productMvcStart = $checks;
-$paths = ['app/Models/Product.php','app/Controllers/Admin/ProductController.php','app/Views/admin/products/index.php','app/Views/admin/products/form.php'];
+$paths = ['backend/Models/Product.php','backend/Controllers/Admin/ProductController.php','frontend/Views/admin/products/index.php','frontend/Views/admin/products/form.php'];
 foreach ($paths as $path) check(request($path)[0] === 403, 'Product MVC internal URL denied to admin: '.$path);
 $adminCookie = $cookie;
 $cookie = $temp . '/anonymous-product-mvc.txt';
@@ -11,12 +11,12 @@ foreach (['products.php','product-form.php','save-product.php'] as $entry) {
 }
 $cookie = $adminCookie;
 foreach (['index','form'] as $template) {
-    $source = file_get_contents($app.'/app/Views/admin/products/'.$template.'.php');
+    $source = file_get_contents($app.'/frontend/Views/admin/products/'.$template.'.php');
     check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE|mysqli)\b|\$_POST/', $source), 'Product view has no SQL/POST: '.$template);
 }
-$model = file_get_contents($app.'/app/Models/Product.php');
+$model = file_get_contents($app.'/backend/Models/Product.php');
 check(!preg_match('/\$_(GET|POST|SESSION|FILES)|header\s*\(/', $model), 'Product model has no request/session/upload behavior');
-$controller = file_get_contents($app.'/app/Controllers/Admin/ProductController.php');
+$controller = file_get_contents($app.'/backend/Controllers/Admin/ProductController.php');
 check(!preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/', $controller), 'Product controller contains no SQL');
 $form = request('admin/product-form.php?id=1')[1];
 check(str_contains($form,'<script src="assets/product-form.js"></script>') && str_contains($form,'id="image-preview"'), 'Preview script and target stay at legacy URL');
@@ -56,5 +56,5 @@ try {
 foreach (['products.php','product-form.php','product-form.php?id=1'] as $entry) {
     check(substr_count(request('admin/'.$entry)[1],'class="nav-link active"') === 1, 'Product MVC sidebar active: '.$entry);
 }
-check(!preg_match('/(?:require|include)[^;]*(?:tests|docs)/',file_get_contents($app.'/app/Controllers/Admin/ProductController.php')), 'Product runtime does not depend on repository tests/docs');
+check(!preg_match('/(?:require|include)[^;]*(?:tests|docs)/',file_get_contents($app.'/backend/Controllers/Admin/ProductController.php')), 'Product runtime does not depend on repository tests/docs');
 echo 'Product MVC checks completed: '.($checks-$productMvcStart).PHP_EOL;

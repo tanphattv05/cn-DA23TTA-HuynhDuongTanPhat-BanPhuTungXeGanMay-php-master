@@ -76,13 +76,13 @@ $ordersBefore = $db->query('SELECT id,user_id,fullname,phone,address,note,total,
 $adminCookie = $cookie;
 $cookie = $temp . '/anonymous-customers.txt';
 foreach (['customers.php','customer-detail.php?id=' . $mainId,'includes/customer-view.php'] as $path) {
-    [$status,,$headers] = request('admin/' . $path);
-    check($status === 302 && str_contains($headers,'/scr/pages/login.php'), 'Anonymous denied: ' . $path);
+    [$status,,$headers] = request(str_starts_with($path, 'includes/') ? 'backend/Support/Admin/' . basename($path) : 'admin/' . $path);
+    check((str_starts_with($path, 'includes/') ? $status === 403 : ($status === 302 && str_contains($headers,'/scr/pages/login.php'))), 'Anonymous denied: ' . $path);
 }
 $cookie = $adminCookie;
 request('test-session.php?id=2');
 foreach (['customers.php','customer-detail.php?id=' . $mainId,'includes/customer-view.php'] as $path) {
-    check(request('admin/' . $path)[0] === 403, 'Customer denied: ' . $path);
+    check(request(str_starts_with($path, 'includes/') ? 'backend/Support/Admin/' . basename($path) : 'admin/' . $path)[0] === 403, 'Customer denied: ' . $path);
 }
 request('test-session.php?id=1');
 [$status, $html] = request('admin/customers.php?q=client00%40test.invalid');
@@ -152,14 +152,14 @@ check(str_contains($html,'&lt;script&gt;alert(1)&lt;/script&gt;') && !str_contai
 $html = request('admin/customer-detail.php?id=' . end($clientIds))[1];
 check(str_contains($html,'&lt;script&gt;alert(1)&lt;/script&gt;'), 'Customer fullname escaped in detail');
 foreach (['customers.php','customer-detail.php?id=' . $mainId,'customer-detail.php?id=1','products.php','categories.php'] as $path) {
-    $html = request('admin/' . $path)[1];
+    $html = request(str_starts_with($path, 'includes/') ? 'backend/Support/Admin/' . basename($path) : 'admin/' . $path)[1];
     check(substr_count($html,'class="nav-link active"') === 1, 'One active sidebar item: ' . $path);
 }
 // Simulate an orders read failure only in the isolated schema.
 $db->query('RENAME TABLE orders TO isolated_orders_backup');
 try {
     foreach (['customers.php','customer-detail.php?id=' . $mainId] as $path) {
-        [$status,$html] = request('admin/' . $path);
+        [$status,$html] = request(str_starts_with($path, 'includes/') ? 'backend/Support/Admin/' . basename($path) : 'admin/' . $path);
         check($status === 503 && str_contains($html,'Vui lòng thử lại sau.') && !str_contains($html,'SQLSTATE') && !str_contains($html,$testName), 'Database error remains private: ' . $path);
     }
 } finally {

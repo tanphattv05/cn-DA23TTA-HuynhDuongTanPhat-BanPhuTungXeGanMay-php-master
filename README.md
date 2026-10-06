@@ -22,6 +22,28 @@ Không cần rewrite. Namespace PHP vẫn là `MotoParts\App`; thư mục `scr/a
 
 ## Cài đặt và kiểm tra
 
+Yêu cầu: Apache/XAMPP, PHP 8.2 với mysqli/mysqlnd, mbstring, fileinfo và session;
+MySQL/MariaDB InnoDB. Test cần curl, DOM và proc_open. Không cần framework/Composer.
+
+1. Giải nén vào htdocs với tên thư mục
+   `cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master`, bật Apache/MySQL.
+2. Tạo database mới rỗng `phutung_xemay` (utf8mb4_general_ci), import
+   `docs/database-schema.sql` bằng phpMyAdmin. Không import đè DB đang dùng.
+3. Gói ZIP không có config thật: chép `scr/backend/config/database.example.php`
+   thành `database.php` cùng thư mục, điền tài khoản DB của máy cài đặt. Không ghi đè
+   config của workspace đang hoạt động. Không đưa config đã điền vào gói phát hành.
+4. Đăng ký tài khoản của bạn qua `scr/pages/register.php`, dùng mật khẩu riêng.
+   Trong phpMyAdmin, xác minh đúng email/ID của tài khoản vừa tạo, chỉ đổi role dòng
+   đó thành `admin`, rồi đăng nhập lại. Không có tài khoản/mật khẩu Admin hard-code.
+
+Storefront: http://localhost/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/
+
+Admin: http://localhost/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/admin/
+
+Tên thư mục dự án nằm trong base URL hiện có. Khi thử ZIP ở một XAMPP mới, giữ tên
+này; không giải nén đè dự án đang chạy. ZIP không kèm ảnh upload sản phẩm hoặc dữ liệu
+kinh doanh. Tạo danh mục/sản phẩm và upload ảnh trên bản cài mới theo nhu cầu.
+
 Làm theo [cài đặt XAMPP](docs/INSTALLATION-XAMPP.md), import
 [schema-only](docs/database-schema.sql) vào database mới rỗng và cấu hình duy nhất
 tại `scr/backend/config/database.php`. Schema không có tài khoản Admin mặc định.
@@ -49,3 +71,15 @@ Hai lệnh đầu chạy cùng harness; không cộng trùng số kiểm tra.
 
 Tài liệu đọc qua repository/IDE; Apache chặn truy cập HTTP trực tiếp docs, tests và
 metadata repository. Các tài liệu giai đoạn cũ mô tả lịch sử chuyển đổi.
+
+## Đóng gói cuối và bảo mật
+
+Chạy `D:/xampp/php/php.exe tests/final-handover.php --isolated` để kiểm tra bàn giao.
+Chạy `powershell -File tools/build-handover.ps1` trong repository để kiểm tra lại và
+tạo `dist/MotoParts-MVC-Final.zip`. Không có tùy chọn bỏ qua kiểm tra.
+Xem [bàn giao cuối](docs/FINAL-HANDOVER.md) về phạm vi và kiểm thử ZIP.
+
+Giữ .htaccess để chặn mã nội bộ và script upload; giữ CSRF/session/phân quyền hiện có.
+Không chia sẻ database.php, session/cookie/token hoặc export dữ liệu người dùng.
+XAMPP local chưa phải cấu hình production HTTPS đã được harden; giới hạn bảo mật
+và idempotency checkout được ghi trong docs/SECURITY.md.

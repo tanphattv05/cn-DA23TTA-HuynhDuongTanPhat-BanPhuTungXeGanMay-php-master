@@ -16,7 +16,7 @@
                         "scr/backend/Controllers/Storefront/CheckoutController.php":  "e496829a0fe44b3e9c704131bf93c328553f165bd6e57cef7de463669fc66223",
                         "scr/backend/Controllers/Storefront/HomeController.php":  "08728025bbf54de95cd35f4bf0a3263a9dcc4b68d90a6cf9321c7559383e60a3",
                         "scr/backend/Controllers/Storefront/OrderController.php":  "efc46d0e62b74c2d0c7e6a26659f2cd090117c14423b81769ce7037e895e0901",
-                        "scr/backend/Controllers/Storefront/ProductController.php":  "a43b986e17fd03540702a4bc88d54ee419a3475670b325ab32a2fd6d78017fb8",
+                        "scr/backend/Controllers/Storefront/ProductController.php":  "b672755bbd520e5126a326122d01ef6288703521835c260d42f0df4de4d8fc02",
                         "scr/backend/Core/AuthCsrf.php":  "99b9ccbe9101ce5c17e46ba34be20a86c8ca4db63f33ec5705063b6a86e5bd58",
                         "scr/backend/Core/CartCsrf.php":  "9a5c54fda57336250fd8a93005d4ba2a88d66fe36e6763d6b25bdbbcab1c9963",
                         "scr/backend/Core/OrderStatus.php":  "6081f4e5908da4af8587d6b8b53217ec7dd0d592d76b947913e81eb8a0328bbe",
@@ -34,7 +34,7 @@
                         "scr/backend/Models/Order.php":  "29f9d14f2bed57cf3ceb3025056be7190fa6e6cb325ab471e286167ed4726ca6",
                         "scr/backend/Models/Product.php":  "e3183932a3e651080dbbe72b0986b14a736d3d6727f4cc23e523e4246c05ba57",
                         "scr/backend/Models/StorefrontOrder.php":  "8d357748c0fce5c11b405f0b9c1012b005d606e2f30cffd5f90c46ad24508d6b",
-                        "scr/backend/Models/StorefrontProduct.php":  "0f69ca3cceef10e43248233c25cfa84784039711e7ce79735e11657a6ba125bf",
+                        "scr/backend/Models/StorefrontProduct.php":  "3ec63217d61e9fc266b019104d2e71e93198bed09e0bb698ed1dd2b8ed3b742f",
                         "scr/backend/Models/UserAuth.php":  "c0d2e185c2a2458bf81f97a364c064de0b9eb425bff5b10a5f55f8466bce57be",
                         "scr/backend/Services/.gitkeep":  "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                         "scr/backend/Services/AuthService.php":  "74357ec3049834f275d23da776890c8cbf2535cf0a199b231c900a16f44a38cd",
@@ -188,7 +188,8 @@
                               "scr/assets/images/products/castrol-power1.jpg":  "37eac5cc5369a35a69a304fbb9ece286f87c587ea1dc9e3ba05058776ac85afb",
                               "scr/assets/images/products/ffe3d8528c2becb6c4fc59bca88d0026b16a3cdd3d63e0a1.jpg":  "37eac5cc5369a35a69a304fbb9ece286f87c587ea1dc9e3ba05058776ac85afb",
                               "scr/assets/images/products/michelin-city-extra.jpg":  "e548d15813488b1197b6656b4cb393ec87c41b3eaad3b75253507fc173d70249",
-                              "scr/assets/images/products/Nhớt_Shell.jpg":  "afffc0d4b88df42eada890accaf320bbc205c0a0bcbb5a5dbc1cc559ce0cf1b8"
+                              "scr/assets/images/products/Nhớt_Shell.jpg":  "afffc0d4b88df42eada890accaf320bbc205c0a0bcbb5a5dbc1cc559ce0cf1b8",
+                              "scr/assets/images/products/df4405633e8549018cb9a069be9262c2402a5fb6fae0aa5d.jpg":  "d16edb7e33607081e6c6007acc52f733e123bdd4196b7f35e910fc1057e00bb0"
                           },
     "scr/assets/js":  {
                           "scr/assets/js/.gitkeep":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",

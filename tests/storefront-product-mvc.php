@@ -42,7 +42,7 @@ foreach ([$list, $detail] as $html) {
 check(request('assets/images/products/storefront%20test.png')[0] === 200, 'Product image HTTP 200');
 check(str_contains($list, 'product-detail.php?id=' . $catalogId), 'List links to correct detail');
 $links = customer_test_dom($list)->query('//a[contains(@href,"product-detail.php?id=")]');
-check($links->item(0)->getAttribute('href') === 'product-detail.php?id=' . $catalogId && $links->length === (int)$db->query('SELECT COUNT(*) FROM products p JOIN categories c ON c.id=p.category_id')->fetch_row()[0], 'List preserves complete catalog and descending ID');
+check($links->item(0)->getAttribute('href') === 'product-detail.php?id=' . $catalogId && $links->length === min(12, (int)$db->query('SELECT COUNT(*) FROM products p JOIN categories c ON c.id=p.category_id')->fetch_row()[0]), 'List preserves newest catalog and 12-row first page');
 check(str_contains($detail, 'Còn hàng: 7') && str_contains($detail, 'max="7"'), 'Stock and quantity limit retained');
 check(str_contains($detail, 'Description &lt;em&gt;raw&lt;/em&gt;<br') && str_contains($detail, 'Second line'), 'Description escaped with line breaks');
 check(str_contains($detail, 'href="products.php"'), 'Detail back link retained');

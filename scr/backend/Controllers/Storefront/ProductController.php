@@ -43,14 +43,87 @@ final class ProductController
     {
         $products = [];
         $error = '';
+        [$filters, $validationErrors, $page] = $this->catalogInput($_GET);
+        $categories = []; $total = 0; $totalPages = 1; $pagination = [];
         try {
-            foreach ($this->model()->all() as $product) {
-                $products[] = $this->presentation($product);
+            $model = $this->model();
+            $categories = $model->categories();
+            if ($filters['category'] !== '' && !in_array($filters['category'], array_map('strval', array_column($categories, 'id')), true)) {
+                $validationErrors['category'] = 'Danh mục không hợp lệ hoặc không còn tồn tại.';
+            }
+            if (!$validationErrors) {
+                $total = $model->count($filters);
+                $totalPages = max(1, (int) ceil($total / 12));
+                $page = min($page, $totalPages);
+                foreach ($model->page($filters, ($page - 1) * 12) as $product) {
+                    $products[] = $this->presentation($product);
+                }
+                $pagination = $this->catalogPagination($filters, $page, $totalPages);
+            } else {
+                $page = 1;
             }
         } catch (\Throwable $exception) {
             $error = $this->unavailable($exception);
         }
-        View::storefront('storefront/products/index', compact('products', 'error'));
+        View::storefront('storefront/products/index', compact('products', 'error', 'filters', 'validationErrors', 'categories', 'total', 'totalPages', 'page', 'pagination'));
+    }
+
+    private function catalogInput(array $query): array
+    {
+        $defaults = ['q'=>'', 'category'=>'', 'min_price'=>'', 'max_price'=>'', 'stock'=>'all', 'sort'=>'newest'];
+        $filters = $defaults; $errors = [];
+        foreach ($defaults as $key => $default) {
+            if (!isset($query[$key])) continue;
+            if (!is_string($query[$key]) || !mb_check_encoding($query[$key], 'UTF-8')) {
+                if (!in_array($key, ['stock','sort'], true)) $errors[$key] = 'Bộ lọc không hợp lệ. Vui lòng nhập lại.';
+                continue;
+            }
+            $value = trim($query[$key]);
+            $maxLength = $key === 'q' ? 100 : 32;
+            if (mb_strlen($value, 'UTF-8') > $maxLength) {
+                if (!in_array($key, ['stock','sort'], true)) $errors[$key] = $key === 'q' ? 'Từ khóa tối đa 100 ký tự.' : 'Giá trị bộ lọc quá dài.';
+                $value = mb_substr($value, 0, $maxLength, 'UTF-8');
+            }
+            $filters[$key] = $value;
+        }
+        if ($filters['category'] !== '' && (!preg_match('/\A[1-9][0-9]{0,9}\z/', $filters['category']) || (int)$filters['category'] > 2147483647)) {
+            $errors['category'] = 'Danh mục không hợp lệ.';
+        }
+        foreach (['min_price','max_price'] as $key) {
+            if ($filters[$key] !== '' && !preg_match('/\A[0-9]{1,10}\z/', $filters[$key])) {
+                $errors[$key] = 'Giá phải là số nguyên từ 0 đến 9.999.999.999, không dùng số mũ.';
+            }
+        }
+        if (!isset($errors['min_price']) && !isset($errors['max_price'])
+            && $filters['min_price'] !== '' && $filters['max_price'] !== '' && (int)$filters['min_price'] > (int)$filters['max_price']) {
+            $errors['price_range'] = 'Giá tối thiểu không được lớn hơn giá tối đa.';
+        }
+        if (!in_array($filters['stock'], ['all','in_stock','out_of_stock'], true)) $filters['stock'] = 'all';
+        if (!in_array($filters['sort'], ['newest','price_asc','price_desc','name_asc'], true)) $filters['sort'] = 'newest';
+        $pageInput = $query['page'] ?? '';
+        $page = is_string($pageInput) && preg_match('/\A[1-9][0-9]*\z/', $pageInput)
+            ? filter_var($pageInput, FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]) : false;
+        return [$filters, $errors, $page ?: 1];
+    }
+
+    private function catalogPagination(array $filters, int $page, int $totalPages): array
+    {
+        if ($totalPages <= 1) return [];
+        $query = array_filter($filters, static fn($value) => $value !== '');
+        if ($query['stock'] === 'all') unset($query['stock']);
+        if ($query['sort'] === 'newest') unset($query['sort']);
+        $url = static fn(int $number): string => 'products.php?' . http_build_query($query + ['page'=>$number], '', '&', PHP_QUERY_RFC3986);
+        $links = [];
+        if ($page > 1) $links[] = ['label'=>'Trước','url'=>$url($page-1),'current'=>false];
+        $numbers = array_unique(array_merge([1], range(max(1,$page-2),min($totalPages,$page+2)), [$totalPages]));
+        sort($numbers); $previous = 0;
+        foreach ($numbers as $number) {
+            if ($previous && $number > $previous+1) $links[] = ['label'=>'…','url'=>null,'current'=>false];
+            $links[] = ['label'=>(string)$number,'url'=>$url($number),'current'=>$number===$page];
+            $previous = $number;
+        }
+        if ($page < $totalPages) $links[] = ['label'=>'Sau','url'=>$url($page+1),'current'=>false];
+        return $links;
     }
 
     public function detail(): void

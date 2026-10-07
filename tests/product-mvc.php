@@ -27,7 +27,8 @@ check($status === 200 && $script === file_get_contents($root.'/scr/admin/assets/
 $image = $db->query('SELECT image FROM products WHERE id=1')->fetch_row()[0];
 $expectedImage = '/'.$project.'/scr/assets/images/products/'.rawurlencode(basename($image));
 check(str_contains($form, 'src="'.$expectedImage.'"'), 'Admin image stays under scr/assets/images/products');
-$storefront = request('pages/products.php')[1];
+$imageProductName = $db->query('SELECT name FROM products WHERE id=1')->fetch_row()[0];
+$storefront = request('pages/products.php?' . http_build_query(['q'=>$imageProductName]))[1];
 check(str_contains($storefront,'../assets/images/products/'.$image), 'Storefront points to same image directory');
 [$status,$bytes] = request('assets/images/products/'.rawurlencode($image));
 check($status === 200 && $bytes === file_get_contents($app.'/assets/images/products/'.$image), 'Product image URL returns uploaded bytes');

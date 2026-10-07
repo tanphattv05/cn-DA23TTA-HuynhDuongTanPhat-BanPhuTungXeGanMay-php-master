@@ -32,7 +32,12 @@ $message='Không thể tiếp tục'; $success=''; $oldEmail='fixture@example.in
 $old=['fullname'=>'Khách thử','email'=>$oldEmail,'phone'=>'0900000000','address'=>'Địa chỉ thử','note'=>''];
 $canAddToCart=!$out; $csrfToken=str_repeat('a',64); $submitToken=str_repeat('b',64);
 $flash=null; $notice=''; $unavailable=false; $total=246912; $orderId=42; $canViewOrder=$user!==null;
-\MotoParts\App\Core\View::storefront('storefront/'.$view,compact('user','product','products','orders','order','orderDetails','statusLabels','statusClasses','error','message','success','oldEmail','old','canAddToCart','csrfToken','submitToken','flash','notice','unavailable','total','orderId','canViewOrder'));
+$filters=['q'=>'','category'=>'','min_price'=>'','max_price'=>'','stock'=>'all','sort'=>'newest'];
+$validationErrors=[]; $categories=[]; $totalPages=1; $page=1; $pagination=[];
+if($view==='products/index') $total=count($products);
+// Catalog presentation data follows the actual Controller contract.
+$catalogVariables=compact('filters','validationErrors','categories','totalPages','page','pagination');
+\MotoParts\App\Core\View::storefront('storefront/'.$view,$catalogVariables+compact('user','product','products','orders','order','orderDetails','statusLabels','statusClasses','error','message','success','oldEmail','old','canAddToCart','csrfToken','submitToken','flash','notice','unavailable','total','orderId','canViewOrder'));
 PHP);
 $uiCookie=$cookie; $cookie=$temp.'/ui-cookie.txt';
 $views=['home/index','products/index','products/detail','cart/index','auth/login','auth/register','auth/error','checkout/index','checkout/success','orders/index','orders/detail'];
@@ -54,6 +59,11 @@ foreach($views as $view) {
     foreach($dom->query('//img') as $img) check($img->hasAttribute('alt') && trim($img->getAttribute('alt'))!=='', 'UI image alt '.$view);
     foreach($dom->query('//form') as $form) {
         $action=$form->getAttribute('action'); $uiForms[$action]=true;
+        if($form->getAttribute('id')==='catalog-filters') {
+            check($form->getAttribute('method')==='get' && $action==='products.php', 'UI read-only catalog GET');
+            check($dom->query('.//input[@name="page" or @name="csrf_token"]',$form)->length===0, 'UI catalog resets page and needs no CSRF');
+            continue;
+        }
         check($form->getAttribute('method')==='post', 'UI form POST '.$action);
         check($dom->query('.//input[@type="hidden" and (@name="csrf_token" or @name="auth_csrf_token") and string-length(@value)>0]',$form)->length===1, 'UI form CSRF '.$action);
     }

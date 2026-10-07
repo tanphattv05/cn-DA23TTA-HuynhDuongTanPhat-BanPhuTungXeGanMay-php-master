@@ -3,7 +3,7 @@ import {spawn} from 'node:child_process';
 import {mkdtemp,readFile,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-const base='http://localhost/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/';
+const base=process.env.MOTOPARTS_UI_BASE_URL || 'http://localhost/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/';
 const profile=await mkdtemp(join(tmpdir(),'motoparts-ui-browser-'));
 const edge=spawn('C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',[
   '--headless=new','--remote-debugging-port=0','--remote-debugging-address=127.0.0.1',
@@ -76,6 +76,44 @@ try {
         check(await evaluate('document.querySelector(".navbar-toggler").getAttribute("aria-expanded")==="false" && !document.querySelector("#mainNavbar").classList.contains("show")'),`Menu closes ${path}`);
       }
     }
+  }
+  // Real GET navigation through the catalog, without submitting any write form.
+  for(const width of [390,768,1440]) {
+    await send('Emulation.setDeviceMetricsOverride',{width,height:960,deviceScaleFactor:1,mobile:false});
+    const navigate=async path=>{const url=base+path;await send('Page.navigate',{url});for(let n=0;n<300;n++){if(await evaluate(`location.href === ${JSON.stringify(url)} && document.readyState === 'complete' && !!document.querySelector('#catalog-filters')`))return;await delay(100);}throw Error('Catalog navigation timeout');};
+    await navigate('pages/products.php');
+    check(await evaluate('(()=>{const f=document.querySelector("#catalog-filters");return f.method==="get" && !f.querySelector("[name=page]") && [...f.querySelectorAll("input,select")].every(e=>e.id && document.querySelector(`label[for="${e.id}"]`));})()'),`Catalog GET labels ${width}`);
+    const q=process.env.MOTOPARTS_CATALOG_QUERY || await evaluate('document.querySelector(".product-card .card-title")?.textContent.trim().slice(0,60) || ""');
+    await navigate('pages/products.php?'+new URLSearchParams({q,sort:'price_asc',page:'999999999'}));
+    check(await evaluate(`document.querySelector('[name="q"]').value === ${JSON.stringify(q)} && document.querySelector('[name="sort"]').value === 'price_asc'`),`Catalog URL state ${width}`);
+    check(await evaluate('Number(document.querySelector("#catalog-results").dataset.total)>0 && [...document.querySelectorAll(".product-card .card-title")].every(e=>e.textContent.toLowerCase().includes(document.querySelector("[name=q]").value.toLowerCase()))'),`Catalog matching results ${width}`);
+    check(await evaluate('(()=>{const r=document.querySelector("#catalog-results");return r.dataset.page===r.dataset.pages && (Number(r.dataset.pages)<=1 || document.querySelectorAll(".catalog-pagination [aria-current=page]").length===1);})()'),`Catalog clamp/pagination aria ${width}`);
+    if(process.env.MOTOPARTS_CATALOG_QUERY) check(await evaluate('Number(document.querySelector("#catalog-results").dataset.pages)>1 && document.querySelectorAll(".product-card").length===5'),`Catalog isolated last page ${width}`);
+    check(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'),`Catalog filtered no overflow ${width}`);
+    if(process.env.MOTOPARTS_CATALOG_QUERY) {
+      const combined={q,min_price:'0',max_price:'9999999999',stock:'all',sort:'price_asc'};
+      await navigate('pages/products.php?'+new URLSearchParams(combined));
+      for(const page of [1,2,3]) {
+        check(await evaluate(`Number(document.querySelector('#catalog-results').dataset.page)===${page} && document.querySelectorAll('.product-card').length===${page===3?5:12}`),`Catalog clicked page ${page} ${width}`);
+        check(await evaluate(`(()=>{const u=new URL(location.href);return Object.entries(${JSON.stringify(combined)}).every(([k,v])=>(u.searchParams.get(k)??(k==="stock"?"all":null))===v);})()`),`Catalog clicked filters ${page} ${width}`);
+        check(await evaluate('(()=>{const f=document.querySelector("#catalog-filters").getBoundingClientRect();return document.documentElement.scrollWidth<=innerWidth && [...document.querySelectorAll(".product-card,.catalog-pagination")].every(e=>{const r=e.getBoundingClientRect();return r.left>=0 && r.right<=innerWidth+1 && r.top>=f.bottom && getComputedStyle(e).display!=="none";});})()'),`Catalog geometry page ${page} ${width}`);
+        if(page<3) {
+          const target=await evaluate(`(()=>{const a=[...document.querySelectorAll('.catalog-pagination a')].find(a=>a.textContent.trim()===String(${page+1}));const u=a.href;a.click();return u;})()`);
+          for(let n=0;n<300;n++){if(await evaluate(`location.href===${JSON.stringify(target)} && document.readyState==='complete' && Number(document.querySelector('#catalog-results')?.dataset.page)===${page+1}`))break;await delay(100);}
+        }
+      }
+      await evaluate('document.querySelector("#catalog-q").focus()');
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+      await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+      check(await evaluate('document.activeElement.id==="catalog-category" && getComputedStyle(document.activeElement).boxShadow!=="none"'),`Catalog keyboard focus ${width}`);
+    }
+    await navigate('pages/products.php?q=NoSuchCatalog17DefinitelyAbsent');
+    check(await evaluate('document.querySelector(".empty-state")!==null && document.querySelector("#catalog-results").dataset.total === "0"'),`Catalog empty results ${width}`);
+    const cleared=await evaluate('document.querySelector("#catalog-filters a").getAttribute("href")');
+    check(cleared==='products.php',`Catalog clear URL ${width}`);
+    await navigate('pages/'+cleared);
+    check(await evaluate('document.querySelector("[name=q]").value === "" && location.search === ""'),`Catalog clear navigation ${width}`);
+    check(await evaluate(`document.querySelector('link[href*="assets/css/style.css"]').href.includes('?v=')`),`Catalog CSS version retained ${width}`);
   }
   console.log(`Completed ${count} browser checks. Screenshots and isolated profile: ${profile}`);
 } finally {

@@ -182,6 +182,7 @@ try {
     require __DIR__ . '/storefront-migration.php';
     require __DIR__ . '/admin-migration.php';
     require __DIR__ . '/architecture-finalization.php';
+    require __DIR__ . '/storefront-product-catalog.php';
     require __DIR__ . '/storefront-ui.php';
     echo "Completed $checks checks. Live database untouched.\n";
 } finally {

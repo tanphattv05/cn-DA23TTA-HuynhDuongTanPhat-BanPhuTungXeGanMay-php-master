@@ -12,11 +12,14 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
 <?php else: ?>
 <div class="container py-5">
 
-    <div class="text-center mb-5">
+    <div class="section-heading">
+        <div>
+        <p class="eyebrow">DANH MỤC SẢN PHẨM / MOTOPARTS</p>
         <h1 class="fw-bold">SẢN PHẨM PHỤ TÙNG XE GẮN MÁY</h1>
         <p class="text-muted">
             Các sản phẩm phụ tùng chất lượng dành cho xe gắn máy
         </p>
+        </div>
     </div>
 
     <div class="row">
@@ -25,15 +28,15 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
 
             <?php foreach ($products as $product): ?>
 
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
 
-                    <div class="card h-100 shadow-sm">
+                    <div class="card product-card h-100 shadow-sm">
 
                         <img
                             src="<?php echo htmlspecialchars($product['image_url'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>"
-                            class="card-img-top"
+                            class="card-img-top" loading="lazy"
                             alt="<?php echo htmlspecialchars((string) ($product['name'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>"
-                            style="height: 220px; object-fit: cover;">
+                            >
 
                         <div class="card-body d-flex flex-column">
 
@@ -41,9 +44,9 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
                                 <?php echo htmlspecialchars((string) ($product['category_name'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>
                             </small>
 
-                            <h5 class="card-title mt-2">
+                            <h2 class="card-title mt-2">
                                 <?php echo htmlspecialchars((string) ($product['name'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>
-                            </h5>
+                            </h2>
 
                             <p class="text-danger fw-bold fs-5">
                                 <?php
@@ -81,11 +84,13 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
 
         <?php else: ?>
 
-            <div class="col-12 text-center">
+            <div class="col-12"><div class="empty-state">
+                <i class="bi bi-box-seam" aria-hidden="true"></i>
 
-                <h4>Chưa có sản phẩm nào!</h4>
+                <h2>Chưa có sản phẩm nào!</h2>
+                <p class="text-muted mb-0">Danh mục đang được cập nhật. Mời bạn quay lại sau.</p>
 
-            </div>
+            </div></div>
 
         <?php endif; ?>
 

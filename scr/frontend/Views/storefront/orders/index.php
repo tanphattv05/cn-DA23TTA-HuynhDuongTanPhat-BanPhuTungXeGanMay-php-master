@@ -1,11 +1,12 @@
 <?php if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; } ?>
 <div class="container py-5">
     <h1 class="mb-4">Đơn hàng của tôi</h1>
+    <p class="page-intro">Theo dõi trạng thái và xem lại thông tin từng đơn hàng.</p>
 
     <?php if ($error !== ''): ?>
         <div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
     <?php elseif (!$orders): ?>
-        <div class="alert alert-info">
+        <div class="empty-state"><i class="bi bi-receipt" aria-hidden="true"></i>
             Bạn chưa có đơn hàng nào.
         </div>
 
@@ -13,8 +14,9 @@
             Mua sắm ngay
         </a>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+        <div class="table-responsive" role="region" aria-label="Lịch sử đơn hàng" tabindex="0">
+            <table class="table orders-table align-middle">
+                <caption class="visually-hidden">Lịch sử đơn hàng và trạng thái xử lý</caption>
                 <thead class="table-dark">
                     <tr>
                         <th>Mã đơn</th>
@@ -22,7 +24,7 @@
                         <th>Người nhận</th>
                         <th>Tổng tiền</th>
                         <th>Trạng thái</th>
-                        <th></th>
+                        <th><span class="visually-hidden">Thao tác</span></th>
                     </tr>
                 </thead>
 

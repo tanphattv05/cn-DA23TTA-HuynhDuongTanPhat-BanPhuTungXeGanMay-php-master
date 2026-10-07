@@ -3,9 +3,10 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
 ?>
 <div class="container py-5">
     <h1 class="mb-4">Thanh toán</h1>
+    <p class="page-intro">Hoàn tất thông tin nhận hàng. Kiểm tra đơn của bạn trước khi xác nhận.</p>
 
     <?php if ($error): ?>
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" role="alert">
             <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php endif; ?>
@@ -15,7 +16,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
         <div class="col-lg-7">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h4 class="mb-4">Thông tin nhận hàng</h4>
+                    <h2 class="form-section-title mb-4">Thông tin nhận hàng</h2>
 
                     <form action="../actions/checkout.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
@@ -28,6 +29,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                             <input
                                 type="text"
                                 id="fullname"
+                                autocomplete="name"
                                 name="fullname"
                                 class="form-control"
                                 maxlength="100"
@@ -43,6 +45,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                             <input
                                 type="tel"
                                 id="phone"
+                                autocomplete="tel"
                                 name="phone"
                                 class="form-control"
                                 maxlength="20"
@@ -63,6 +66,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
 
                             <textarea
                                 id="address"
+                                autocomplete="street-address"
                                 name="address"
                                 class="form-control"
                                 rows="4"
@@ -84,25 +88,26 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                                 placeholder="Không bắt buộc"><?= htmlspecialchars($old['note'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-danger">
+                        <div class="checkout-actions"><button type="submit" class="btn btn-danger">
                             Xác nhận đặt hàng
                         </button>
 
                         <a href="cart.php" class="btn btn-outline-dark">
                             Quay lại giỏ hàng
                         </a>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-5">
-            <div class="card shadow-sm">
+            <div class="card checkout-summary shadow-sm">
                 <div class="card-body">
-                    <h4 class="mb-4">Đơn hàng của bạn</h4>
+                    <h2 class="form-section-title mb-4">Đơn hàng của bạn</h2>
 
                     <?php foreach ($products as $product): ?>
-                        <div class="d-flex justify-content-between border-bottom py-3">
+                        <div class="d-flex justify-content-between border-bottom py-3 checkout-line">
                             <div>
                                 <strong>
                                     <?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>
@@ -127,7 +132,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                         </strong>
                     </div>
 
-                    <p class="text-muted mt-3 mb-0">
+                    <p class="checkout-cod mt-3 mb-0"><i class="bi bi-cash-coin" aria-hidden="true"></i> <strong>COD</strong><br>
                         Phương thức thanh toán: Thanh toán khi nhận hàng.
                     </p>
                 </div>

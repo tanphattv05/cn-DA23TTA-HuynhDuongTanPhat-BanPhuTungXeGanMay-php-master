@@ -1,7 +1,8 @@
 <?php if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; } ?>
 <div class="container py-5">
     <?php if (!$order): ?>
-        <div class="alert alert-danger">
+        <h1>Không tìm thấy đơn hàng</h1>
+        <div class="alert alert-danger" role="alert">
             <?= htmlspecialchars($error !== '' ? $error : 'Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn này.', ENT_QUOTES, 'UTF-8') ?>
         </div>
 
@@ -44,7 +45,7 @@
             <div class="col-lg-8">
                 <div class="card shadow-sm">
                     <div class="card-header">
-                        <strong>Sản phẩm trong đơn hàng</strong>
+                        <h2 class="form-section-title mb-0">Sản phẩm trong đơn hàng</h2>
                     </div>
 
                     <div class="card-body">
@@ -52,7 +53,7 @@
 
                             <div class="d-flex align-items-center
                                         justify-content-between
-                                        border-bottom py-3 gap-3 flex-wrap">
+                                        border-bottom py-3 gap-3 flex-wrap order-line">
                                 <div class="d-flex align-items-center gap-3">
                                     <?php if ($item['imageUrl'] !== null): ?>
                                     <img
@@ -60,7 +61,7 @@
                                         alt="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>"
                                         width="90"
                                         height="90"
-                                        style="object-fit: contain;">
+                                        class="line-image">
                                     <?php endif; ?>
 
                                     <div>
@@ -115,7 +116,7 @@
             <div class="col-lg-4">
                 <div class="card shadow-sm">
                     <div class="card-header">
-                        <strong>Thông tin nhận hàng</strong>
+                        <h2 class="form-section-title mb-0">Thông tin nhận hàng</h2>
                     </div>
 
                     <div class="card-body">

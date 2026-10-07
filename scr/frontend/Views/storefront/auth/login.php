@@ -1,11 +1,13 @@
 <?php if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; } ?>
 <div class="container py-5">
-    <div class="card shadow-sm mx-auto" style="max-width: 500px;">
+    <div class="card auth-card shadow-sm mx-auto">
         <div class="card-body p-4">
-            <h1 class="text-center mb-4">Đăng nhập</h1>
+            <div class="auth-mark"><i class="bi bi-person" aria-hidden="true"></i></div>
+            <h1 class="text-center mb-3">Đăng nhập</h1>
+            <p class="text-center text-muted mb-4">Chào mừng trở lại. Theo dõi đơn hàng và tiếp tục hành trình cùng MotoParts.</p>
 
             <?php if ($error): ?>
-                <div class="alert alert-danger">
+                <div class="alert alert-danger" role="alert">
                     <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                 </div>
             <?php endif; ?>
@@ -25,6 +27,7 @@
 
                     <input
                         type="email"
+                        autocomplete="email"
                         id="email"
                         name="email"
                         class="form-control"
@@ -40,6 +43,7 @@
 
                     <input
                         type="password"
+                        autocomplete="current-password"
                         id="password"
                         name="password"
                         class="form-control"

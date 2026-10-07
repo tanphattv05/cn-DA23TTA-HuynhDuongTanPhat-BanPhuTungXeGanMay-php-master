@@ -2,17 +2,15 @@
 if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
 ?>
 <div class="container py-5">
-    <div class="card shadow-sm mx-auto text-center"
-         style="max-width: 650px;">
+    <div class="card success-card shadow-sm mx-auto text-center">
         <div class="card-body p-5">
-            <i class="bi bi-check-circle-fill text-success"
-               style="font-size: 70px;"></i>
+            <i class="bi bi-check-circle-fill success-icon" aria-hidden="true"></i>
 
             <h1 class="mt-3">Đặt hàng thành công!</h1>
 
             <p class="fs-5">
                 Mã đơn hàng của bạn là:
-                <strong>#<?= (int) $orderId ?></strong>
+                <strong class="receipt-number">#<?= (int) $orderId ?></strong>
             </p>
 
             <p class="text-muted">
@@ -24,6 +22,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                 class="btn btn-danger">
                     Xem đơn hàng
                 </a>
+                <a href="my-orders.php" class="btn btn-outline-dark">Lịch sử đơn hàng</a>
             <?php endif; ?>
 
             <a href="products.php" class="btn btn-dark">

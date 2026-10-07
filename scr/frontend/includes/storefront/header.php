@@ -3,6 +3,9 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// Content-addressed asset URL prevents an older storefront stylesheet being reused.
+$storefrontCssFile = dirname(__DIR__, 3) . '/assets/css/style.css';
+$storefrontCssVersion = is_file($storefrontCssFile) ? hash_file('sha256', $storefrontCssFile) : 'missing';
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -27,8 +30,9 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- CSS của website -->
     <link
         rel="stylesheet"
-        href="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/assets/css/style.css">
+        href="/cn-DA23TTA-HuynhDuongTanPhat-BanPhuTungXeGanMay-php-master/scr/assets/css/style.css?v=<?= htmlspecialchars($storefrontCssVersion, ENT_QUOTES, 'UTF-8') ?>">
 
 </head>
 
-<body>
+<body class="storefront-body">
+<a class="skip-link" href="#main-content">Bỏ qua điều hướng, tới nội dung</a>

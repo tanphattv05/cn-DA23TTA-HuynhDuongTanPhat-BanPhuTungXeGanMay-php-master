@@ -3,6 +3,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
 ?>
 <div class="container py-5">
     <h1 class="mb-4">Giỏ hàng</h1>
+    <p class="page-intro">Kiểm tra phụ tùng và số lượng trước khi tiếp tục. Nhập số lượng 0 để xóa sản phẩm khỏi giỏ.</p>
     <?php if ($flash): ?>
     <div class="alert alert-<?= htmlspecialchars($flash['type'], ENT_QUOTES, 'UTF-8') ?>" role="status"><?= htmlspecialchars($flash['message'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
     <?php endif; ?>
@@ -11,7 +12,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
     <?php else: ?>
 
     <?php if (empty($products)): ?>
-        <div class="alert alert-info">
+        <div class="empty-state"><i class="bi bi-cart3" aria-hidden="true"></i>
             Giỏ hàng của bạn đang trống.
         </div>
 
@@ -22,15 +23,16 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
         <form id="cart-update" action="../actions/update_cart.php" method="post">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
 </form>
-            <div class="table-responsive">
-                <table class="table align-middle">
+            <div class="table-responsive" role="region" aria-label="Sản phẩm trong giỏ" tabindex="0">
+                <table class="table cart-table align-middle">
+                    <caption class="visually-hidden">Sản phẩm, giá và số lượng trong giỏ hàng</caption>
                     <thead>
                         <tr>
                             <th>Sản phẩm</th>
                             <th>Đơn giá</th>
-                            <th style="width: 140px;">Số lượng</th>
+                            <th>Số lượng</th>
                             <th>Thành tiền</th>
-                            <th></th>
+                            <th><span class="visually-hidden">Thao tác</span></th>
                         </tr>
                     </thead>
 
@@ -44,7 +46,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                                             alt="<?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>"
                                             width="90"
                                             height="90"
-                                            style="object-fit: contain;">
+                                            class="line-image">
 
                                         <strong>
                                             <?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>
@@ -57,8 +59,10 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                                 </td>
 
                                 <td>
+                                    <label class="visually-hidden" for="cart-quantity-<?= (int) $product['id'] ?>">Số lượng <?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?></label>
                                     <input
                                         type="number" form="cart-update"
+                                        id="cart-quantity-<?= (int) $product['id'] ?>"
                                         class="form-control"
                                         name="quantities[<?= (int) $product['id'] ?>]"
                                         value="<?= (int) $product['quantity'] ?>"
@@ -100,7 +104,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                     Tiếp tục mua hàng
                 </a>
 
-            <div class="d-flex gap-2">
+            <div class="cart-actions">
                 <button type="submit" form="cart-update" class="btn btn-dark">
                     Cập nhật giỏ hàng
                 </button>

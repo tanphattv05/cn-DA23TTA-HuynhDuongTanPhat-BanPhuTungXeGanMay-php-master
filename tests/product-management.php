@@ -46,6 +46,8 @@ try {
     $db->query("INSERT INTO categories (id,name) VALUES (1,'Test category'),(2,'Other')");
     $db->query("INSERT INTO users (id,fullname,email,password,role) VALUES (1,'Admin','admin@test.invalid','unused','admin'),(2,'Customer','customer@test.invalid','unused','customer')");
     mkdir($app, 0777, true);
+    mkdir($app . '/assets/css', 0777, true);
+    copy($root . '/scr/assets/css/style.css', $app . '/assets/css/style.css');
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root . '/scr', FilesystemIterator::SKIP_DOTS));
     foreach ($iterator as $file) {
         if ($file->getExtension() !== 'php' || str_contains($file->getPathname(), 'adminlte')) continue;
@@ -180,6 +182,7 @@ try {
     require __DIR__ . '/storefront-migration.php';
     require __DIR__ . '/admin-migration.php';
     require __DIR__ . '/architecture-finalization.php';
+    require __DIR__ . '/storefront-ui.php';
     echo "Completed $checks checks. Live database untouched.\n";
 } finally {
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }

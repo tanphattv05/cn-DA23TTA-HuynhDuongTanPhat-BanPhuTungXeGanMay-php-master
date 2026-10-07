@@ -1,11 +1,13 @@
 <?php if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; } ?>
 <div class="container py-5">
-    <div class="card shadow-sm mx-auto" style="max-width: 550px;">
+    <div class="card auth-card shadow-sm mx-auto">
         <div class="card-body p-4">
-            <h1 class="text-center mb-4">Đăng ký tài khoản</h1>
+            <div class="auth-mark"><i class="bi bi-person-plus" aria-hidden="true"></i></div>
+            <h1 class="text-center mb-3">Đăng ký tài khoản</h1>
+            <p class="text-center text-muted mb-4">Lưu lại hành trình mua sắm và theo dõi các đơn hàng của bạn.</p>
 
             <?php if ($error): ?>
-                <div class="alert alert-danger">
+                <div class="alert alert-danger" role="alert">
                     <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                 </div>
             <?php endif; ?>
@@ -19,6 +21,7 @@
 
                     <input
                         type="text"
+                        autocomplete="name"
                         id="fullname"
                         name="fullname"
                         class="form-control"
@@ -34,6 +37,7 @@
 
                     <input
                         type="email"
+                        autocomplete="email"
                         id="email"
                         name="email"
                         class="form-control"
@@ -49,6 +53,7 @@
 
                     <input
                         type="tel"
+                        autocomplete="tel"
                         id="phone"
                         name="phone"
                         class="form-control"
@@ -66,6 +71,7 @@
                     <input
                         type="password"
                         id="password"
+                        autocomplete="new-password"
                         name="password"
                         class="form-control"
                         minlength="6"
@@ -84,6 +90,7 @@
                     <input
                         type="password"
                         id="password_confirm"
+                        autocomplete="new-password"
                         name="password_confirm"
                         class="form-control"
                         minlength="6"

@@ -7,7 +7,7 @@ check(is_file($app . '/backend/Controllers/Storefront/HomeController.php'), 'Hom
 file_put_contents($app . '/foundation-state.php', '<?php session_start(); if(isset($_POST["seed"])) $_SESSION=["cart"=>[123=>2,456=>3],"user"=>["id"=>2,"fullname"=>"<b>Foundation</b>","email"=>"fixture@test.invalid","phone"=>"0901234567","role"=>$_POST["role"]??"customer"]]; echo json_encode($_SESSION);');
 foreach (['index.php', ''] as $url) {
     [$status,$html] = request($url);
-    check($status===200 && str_contains($html,'PHỤ TÙNG XE MÁY CHÍNH HÃNG'), 'Guest home URL preserved: '.$url);
+    check($status===200 && trim(customer_test_dom($html)->query('//h1')->item(0)->textContent)==='PHỤ TÙNG XE MÁY CHÍNH HÃNG', 'Guest home URL preserved: '.$url);
     check(substr_count($html,'<!DOCTYPE html>')===1 && substr_count($html,'id="mainNavbar"')===1 && substr_count($html,'bootstrap.bundle.min.js')===1, 'Home renders layout exactly once');
     check(str_contains($html,'/scr/pages/products.php') && str_contains($html,'/scr/assets/css/style.css') && str_contains($html,'/scr/assets/js/main.js'), 'Home asset and product URLs unchanged');
     check(str_contains($html,'Đăng nhập') && !str_contains($html,'actions/logout.php'), 'Guest navbar preserved');

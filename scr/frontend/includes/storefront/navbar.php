@@ -7,6 +7,8 @@ $baseUrl =
 
 $cartCount = 0;
 $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? 'index.php');
+$navbarQuery = $currentPage === 'products.php' && isset($filters['q']) && is_string($filters['q'])
+    ? $filters['q'] : '';
 $navGroups = [
     'home' => ['index.php'],
     'products' => ['products.php', 'product-detail.php'],
@@ -27,7 +29,7 @@ if (!empty($_SESSION['cart'])) {
 
 <header class="storefront-header">
 <div class="brand-strip"><div class="container">MOTOPARTS <span>Chăm xe mỗi ngày. Vững vàng mọi hành trình.</span></div></div>
-<nav class="navbar navbar-expand-xl" data-bs-theme="dark" aria-label="Điều hướng chính">
+<nav class="navbar navbar-expand-xxl" data-bs-theme="dark" aria-label="Điều hướng chính">
     <div class="container">
         <a class="navbar-brand fw-bold"
            href="<?= $baseUrl ?>/">
@@ -46,8 +48,14 @@ if (!empty($_SESSION['cart'])) {
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <form id="navbar-search" class="navbar-search" method="get" action="<?= $baseUrl ?>/pages/products.php" role="search">
+            <label for="navbar-search-q" class="visually-hidden">Tìm kiếm sản phẩm</label>
+            <input id="navbar-search-q" type="search" name="q" maxlength="100" placeholder="Tìm phụ tùng, thương hiệu..." value="<?= htmlspecialchars($navbarQuery, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+            <button type="submit" aria-label="Tìm kiếm sản phẩm"><i class="bi bi-search" aria-hidden="true"></i></button>
+        </form>
+
         <div class="collapse navbar-collapse" id="mainNavbar">
-            <div class="navbar-nav ms-auto align-items-xl-center">
+            <div class="navbar-nav ms-auto align-items-xxl-center">
                 <a class="nav-link<?= $activeNav('home') ?>" href="<?= $baseUrl ?>/">
                     Trang chủ
                 </a>
@@ -82,7 +90,7 @@ if (!empty($_SESSION['cart'])) {
                     Đơn hàng của tôi
                 </a>
 
-                <span class="navbar-text nav-greeting mx-xl-2">
+                <span class="navbar-text nav-greeting mx-xxl-2" title="<?= htmlspecialchars($_SESSION['user']['fullname'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                     Xin chào,
                     <?= htmlspecialchars(
                         $_SESSION['user']['fullname'],

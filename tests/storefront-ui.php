@@ -59,6 +59,10 @@ foreach($views as $view) {
     foreach($dom->query('//img') as $img) check($img->hasAttribute('alt') && trim($img->getAttribute('alt'))!=='', 'UI image alt '.$view);
     foreach($dom->query('//form') as $form) {
         $action=$form->getAttribute('action'); $uiForms[$action]=true;
+        if($form->getAttribute('id')==='navbar-search') {
+            check($form->getAttribute('method')==='get' && $action==='/'.$project.'/scr/pages/products.php', 'UI navbar read-only search');
+            continue;
+        }
         if($form->getAttribute('id')==='catalog-filters') {
             check($form->getAttribute('method')==='get' && $action==='products.php', 'UI read-only catalog GET');
             check($dom->query('.//input[@name="page" or @name="csrf_token"]',$form)->length===0, 'UI catalog resets page and needs no CSRF');
@@ -101,7 +105,7 @@ foreach(['customer','admin'] as $role) {
     check(trim($dom->query('//nav//span[contains(@class,"badge")]')->item(0)->textContent)==='3', 'UI cart badge '.$role);
 }
 $dom=customer_test_dom(request('ui-fixture.php?view=home/index')[1]);
-check($dom->query('//nav//a[contains(@href,"login.php")]')->length===1 && $dom->query('//nav//form')->length===0, 'UI guest auth navigation');
+check($dom->query('//nav//a[contains(@href,"login.php")]')->length===1 && $dom->query('//nav//form[@method="post"]')->length===0, 'UI guest auth navigation');
 foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root.'/scr/frontend/Views/storefront',FilesystemIterator::SKIP_DOTS)) as $file) {
     check(!preg_match('/mysqli_|\bSELECT .+ FROM\b|\$_POST/',file_get_contents($file->getPathname())), 'UI View boundary '.$file->getFilename());
 }

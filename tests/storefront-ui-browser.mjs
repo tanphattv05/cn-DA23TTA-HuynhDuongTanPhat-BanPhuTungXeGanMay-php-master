@@ -55,7 +55,7 @@ try {
       const luminance=c=>{const a=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return a[0]*.2126+a[1]*.7152+a[2]*.0722;};
       const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
       check(contrast(styles.navColor,styles.headerBg)>=4.5,`Navbar contrast ${width} ${path}`);
-      check(styles.header.top===0 && styles.header.height>=80 && styles.header.height<=190 && Math.abs(styles.main.top-styles.header.bottom)<=1,`Header/main geometry ${width} ${path}`);
+      check(styles.header.top===0 && styles.header.height>=80 && styles.header.height<=(width<1400?250:190) && Math.abs(styles.main.top-styles.header.bottom)<=1,`Header/main geometry ${width} ${path}`);
       check(styles.footerBg==='rgb(29, 32, 37)' && contrast(styles.footerColor,styles.footerBg)>=4.5,`Footer contrast ${width} ${path}`);
       const cssResponse=await fetch(styles.css);
       check(cssResponse.status===200 && /^text\/css(?:;|$)/i.test(cssResponse.headers.get('content-type')||''),`CSS HTTP/MIME ${width} ${path}`);
@@ -115,6 +115,65 @@ try {
     check(await evaluate('document.querySelector("[name=q]").value === "" && location.search === ""'),`Catalog clear navigation ${width}`);
     check(await evaluate(`document.querySelector('link[href*="assets/css/style.css"]').href.includes('?v=')`),`Catalog CSS version retained ${width}`);
   }
+  const navStart=count;
+  for(const width of [320,390,430,768,1440]) {
+    const widthStart=count;
+    await send('Emulation.setDeviceMetricsOverride',{width,height:960,deviceScaleFactor:1,mobile:false});
+    const go=async path=>{
+      const url=base+path;await send('Page.navigate',{url});
+      for(let n=0;n<300;n++){if(await evaluate(`location.href===${JSON.stringify(url)} && document.readyState==='complete' && !!document.querySelector('#navbar-search')`))return;await delay(100);}
+      throw Error('Navbar navigation timeout');
+    };
+    await go('pages/products.php');
+    const geometry=async()=>await evaluate(`(()=>{
+      const rect=s=>document.querySelector(s).getBoundingClientRect(), f=rect('#navbar-search'), b=rect('.navbar-brand'), m=rect('#mainNavbar'), c=rect('.navbar>.container');
+      return document.documentElement.scrollWidth<=innerWidth && f.height>=40 && f.height<=55 &&
+        (innerWidth>=1400 ? b.right<=f.left && f.right<=m.left && Math.abs(b.top-f.top)<15 && f.width>=360 && f.width<=520 && rect('header').height<190
+        : f.top>=b.bottom && Math.abs(f.width-(c.width-24))<2 && getComputedStyle(document.querySelector('.navbar-toggler')).display!=='none');
+    })()`);
+    check(await geometry(),`Navbar layout/no overflow ${width}`);
+    if(width<1400) {
+      await evaluate('document.querySelector(".navbar-toggler").click()');await delay(400);
+      check(await evaluate('document.querySelector("#mainNavbar").classList.contains("show") && document.documentElement.scrollWidth<=innerWidth'),`Navbar menu open ${width}`);
+      await evaluate('document.querySelector(".navbar-toggler").click()');await delay(400);
+      check(await evaluate('!document.querySelector("#mainNavbar").classList.contains("show")'),`Navbar menu closed ${width}`);
+    }
+    await evaluate('document.querySelector("#navbar-search-q").focus()');
+    check(await evaluate('document.activeElement.id==="navbar-search-q" && getComputedStyle(document.querySelector("#navbar-search")).boxShadow!=="none"'),`Navbar input focus ${width}`);
+    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+    await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+    check(await evaluate('document.activeElement.matches("#navbar-search button") && parseFloat(getComputedStyle(document.activeElement).outlineWidth)>=3'),`Navbar button keyboard focus ${width}`);
+    const q=process.env.MOTOPARTS_CATALOG_QUERY || await evaluate('document.querySelector(".product-card .card-title")?.textContent.trim() || "NoSuchNavbar171"');
+    let result;
+    for(const mode of ['enter','button']) {
+      await go('pages/products.php?stock=in_stock&sort=price_desc&page=2');
+      await evaluate(`document.querySelector('#navbar-search-q').value=${JSON.stringify(q)};document.querySelector('#navbar-search-q').focus()`);
+      if(mode==='enter') {
+        await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r'});
+        await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+      } else await evaluate('document.querySelector("#navbar-search button").click()');
+      let ready=false;
+      for(let n=0;n<300;n++){if(await evaluate(`document.readyState==='complete' && location.search===${JSON.stringify('?'+new URLSearchParams({q}))} && document.querySelector('#catalog-q')?.value===${JSON.stringify(q)}`)){ready=true;break;}await delay(100);}
+      check(ready && await evaluate('Number(document.querySelector("#catalog-results").dataset.total)>0'),`Navbar ${mode} submits only q ${width}`);
+      const ids=await evaluate('[...document.querySelectorAll(".product-card a")].map(a=>a.href).join("|")');
+      if(mode==='enter')result=ids;else check(ids===result,`Navbar Enter/button same results ${width}`);
+    }
+    check(await evaluate(`document.querySelector('link[href*="assets/css/style.css"]').href.includes('?v=')`),`Navbar CSS version ${width}`);
+    if(width===390||width===1440) {
+      await evaluate('document.activeElement.blur();scrollTo(0,0)');
+      const shot=await send('Page.captureScreenshot',{format:'png'});
+      await writeFile(join(profile,`navbar-search-${width}.png`),Buffer.from(shot.data,'base64'));
+    }
+    if(process.env.MOTOPARTS_NAVBAR_FIXTURE) {
+      for(const role of ['customer','admin']) {
+        await go('ui-fixture.php?view=home/index&member='+role);
+        check(await geometry(),`Navbar authenticated geometry ${role} ${width}`);
+        check(await evaluate('document.querySelector(".navbar .badge").textContent.trim()==="3" && !!document.querySelector(".navbar form[method=post] input[name=auth_csrf_token]")'),`Navbar authenticated badge/token ${role} ${width}`);
+      }
+    }
+    console.log(`Navbar viewport ${width}: ${count-widthStart} checks`);
+  }
+  console.log(`Navbar browser checks: ${count-navStart}`);
   console.log(`Completed ${count} browser checks. Screenshots and isolated profile: ${profile}`);
 } finally {
   if(ws?.readyState===WebSocket.OPEN) {ws.send(JSON.stringify({id:999999,method:'Browser.close'}));ws.close();}

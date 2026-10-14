@@ -205,6 +205,36 @@ try {
       console.log(`Favorites viewport ${width}: ${count-start} checks`);
     }
   }
+  if(process.env.MOTOPARTS_REVIEWS_FIXTURE) {
+    for(const width of [390,768,1440]) {
+      const start=count;
+      await send('Emulation.setDeviceMetricsOverride',{width,height:960,deviceScaleFactor:1,mobile:false});
+      await send('Page.navigate',{url:base+'review-session.php'});
+      const waitReview=async expression=>{
+        for(let n=0;n<300;n++){if(await evaluate(`document.readyState==='complete' && (${expression})`))return true;await delay(100);}
+        return false;
+      };
+      check(await waitReview('!!document.querySelector("#review-form")'),`Reviews buyer form ${width}`);
+      check(await evaluate('document.documentElement.scrollWidth<=innerWidth && getComputedStyle(document.querySelector("#review-form")).display!=="none" && document.querySelector("#review-form").getBoundingClientRect().width>200'),`Reviews responsive geometry ${width}`);
+      check(await evaluate('!!document.querySelector("label[for=review-rating]") && !!document.querySelector("label[for=review-comment]")'),`Reviews labels ${width}`);
+      await evaluate('document.querySelector("#review-comment").focus()');
+      check(await evaluate('getComputedStyle(document.activeElement).boxShadow!=="none" || parseFloat(getComputedStyle(document.activeElement).outlineWidth)>=3'),`Reviews focus ${width}`);
+      for(const mode of ['Create','Edit']) {
+        const comment=mode+' browser review '+width;
+        await evaluate(`document.querySelector('#review-rating').value='4';document.querySelector('#review-comment').value=${JSON.stringify(comment)};document.querySelector('#review-form button').click()`);
+        check(await waitReview(`!!document.querySelector('#review-delete') && [...document.querySelectorAll('.review-item')].some(e=>e.textContent.includes(${JSON.stringify(comment)}))`),`Reviews ${mode} POST ${width}`);
+      }
+      await evaluate('document.querySelector("#review-delete button").click()');
+      check(await waitReview('!!document.querySelector("#review-form") && !document.querySelector("#review-delete") && Number(document.querySelector(".review-summary").dataset.total)===12'),`Reviews delete POST ${width}`);
+      await evaluate('document.querySelector("#product-reviews nav a").click()');
+      check(await waitReview('new URL(location.href).searchParams.get("review_page")==="2" && document.querySelectorAll(".review-item").length===2'),`Reviews page two ${width}`);
+      check(await evaluate('document.documentElement.scrollWidth<=innerWidth'),`Reviews pagination overflow ${width}`);
+      await evaluate('document.querySelector("#product-reviews").scrollIntoView()');
+      const shot=await send('Page.captureScreenshot',{format:'png'});
+      await writeFile(join(profile,`reviews-${width}.png`),Buffer.from(shot.data,'base64'));
+      console.log(`Reviews viewport ${width}: ${count-start} checks`);
+    }
+  }
   console.log(`Completed ${count} browser checks. Screenshots and isolated profile: ${profile}`);
 } finally {
   if(ws?.readyState===WebSocket.OPEN) {ws.send(JSON.stringify({id:999999,method:'Browser.close'}));ws.close();}

@@ -79,6 +79,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
                 </div>
             </div>
         </div>
+        <?php if (isset($reviewState)): require __DIR__.'/reviews.php'; endif; ?>
     <?php endif; ?>
 </div>
 <?php endif; ?>

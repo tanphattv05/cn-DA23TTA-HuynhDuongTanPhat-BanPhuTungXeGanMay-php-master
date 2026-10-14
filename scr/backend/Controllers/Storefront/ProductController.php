@@ -155,6 +155,7 @@ final class ProductController
         $favoriteState = FavoriteController::context($product ? [(int)$product['id']] : []);
         $favoriteFlash = $_SESSION['favorite_flash'] ?? '';
         unset($_SESSION['favorite_flash']);
-        View::storefront('storefront/products/detail', compact('product', 'error', 'canAddToCart', 'csrfToken', 'favoriteState', 'favoriteFlash'));
+        $reviewState = $product ? ReviewController::context((int)$product['id'], $_GET['review_page'] ?? null) : null;
+        View::storefront('storefront/products/detail', compact('product', 'error', 'canAddToCart', 'csrfToken', 'favoriteState', 'favoriteFlash', 'reviewState'));
     }
 }

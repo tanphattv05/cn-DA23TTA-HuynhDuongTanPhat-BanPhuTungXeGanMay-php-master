@@ -174,6 +174,37 @@ try {
     console.log(`Navbar viewport ${width}: ${count-widthStart} checks`);
   }
   console.log(`Navbar browser checks: ${count-navStart}`);
+  if(process.env.MOTOPARTS_FAVORITES_FIXTURE) {
+    for(const width of [390,768,1440]) {
+      const start=count;
+      await send('Emulation.setDeviceMetricsOverride',{width,height:960,deviceScaleFactor:1,mobile:false});
+      await send('Page.navigate',{url:base+'favorite-session.php'});
+      const waitPage=async path=>{
+        for(let n=0;n<300;n++){if(await evaluate(`document.readyState==='complete' && location.pathname.endsWith(${JSON.stringify(path)}) && !!document.querySelector('main .product-card, main .product-copy')`))return;await delay(100);}
+        throw Error('Favorites navigation timeout');
+      };
+      await waitPage('pages/favorites.php');
+      check(await evaluate('document.querySelector("h1").textContent==="Sản phẩm yêu thích" && !!document.querySelector("button[aria-pressed=true]")'),`Favorites saved list ${width}`);
+      check(await evaluate('document.documentElement.scrollWidth<=innerWidth && [...document.querySelectorAll(".product-card")].every(e=>{const r=e.getBoundingClientRect();return r.width>200 && r.right<=innerWidth && getComputedStyle(e).display!=="none";})'),`Favorites geometry ${width}`);
+      const detail=await evaluate('document.querySelector(".product-card a").href');
+      await send('Page.navigate',{url:detail});await waitPage('pages/product-detail.php');
+      await evaluate('document.querySelector(".favorite-control button").focus()');
+      check(await evaluate('parseFloat(getComputedStyle(document.activeElement).outlineWidth)>=3'),`Favorites focus ${width}`);
+      await evaluate('document.querySelector(".favorite-control button").click()');
+      let removed=false;
+      for(let n=0;n<300;n++){removed=await evaluate('document.readyState==="complete" && !!document.querySelector(".favorite-control button[aria-pressed=false]")');if(removed)break;await delay(100);}
+      check(removed,`Favorites remove POST ${width}`);
+      await evaluate('document.querySelector(".favorite-control button").click()');
+      let saved=false;
+      for(let n=0;n<300;n++){saved=await evaluate('document.readyState==="complete" && !!document.querySelector(".favorite-control button[aria-pressed=true]")');if(saved)break;await delay(100);}
+      check(saved,`Favorites add POST ${width}`);
+      await send('Page.navigate',{url:base+'pages/favorites.php'});await waitPage('pages/favorites.php');
+      check(await evaluate('document.querySelectorAll("nav a[aria-current=page]").length===1 && document.querySelector("nav a[aria-current=page]").href.endsWith("/favorites.php")'),`Favorites active nav ${width}`);
+      const shot=await send('Page.captureScreenshot',{format:'png'});
+      await writeFile(join(profile,`favorites-${width}.png`),Buffer.from(shot.data,'base64'));
+      console.log(`Favorites viewport ${width}: ${count-start} checks`);
+    }
+  }
   console.log(`Completed ${count} browser checks. Screenshots and isolated profile: ${profile}`);
 } finally {
   if(ws?.readyState===WebSocket.OPEN) {ws.send(JSON.stringify({id:999999,method:'Browser.close'}));ws.close();}

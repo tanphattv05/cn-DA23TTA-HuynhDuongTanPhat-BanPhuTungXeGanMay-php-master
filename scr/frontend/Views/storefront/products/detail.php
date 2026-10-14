@@ -31,6 +31,8 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
                 <div class="product-copy">
                 <p class="eyebrow"><?= htmlspecialchars($product['category_name'], ENT_QUOTES, 'UTF-8') ?></p>
                 <h1><?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?></h1>
+                <?php if (!empty($favoriteFlash)): ?><div class="alert alert-info" role="status"><?= htmlspecialchars($favoriteFlash, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
+                <?php require dirname(__DIR__, 3).'/includes/storefront/favorite-button.php'; ?>
                 <p class="product-price">
                     <?= number_format((float) $product['price'], 0, ',', '.') ?> ₫
                 </p>

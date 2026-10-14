@@ -133,6 +133,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
 
                             </a>
 
+                            <?php require dirname(__DIR__, 3).'/includes/storefront/favorite-button.php'; ?>
                         </div>
 
                     </div>

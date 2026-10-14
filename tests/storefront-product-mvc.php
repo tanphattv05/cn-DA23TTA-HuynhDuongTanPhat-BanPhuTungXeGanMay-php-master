@@ -16,13 +16,14 @@ copy($root . '/scr/assets/js/main.js', $app . '/assets/js/main.js');
 file_put_contents($app . '/storefront-session.php', '<?php session_start(); $id=(int)($_GET["id"]??0); if ($id) { $_SESSION["user"]=["id"=>$id,"fullname"=>"Viewer <b>Name</b>","role"=>$id===1?"admin":"customer"]; } else { unset($_SESSION["user"]); } $_SESSION["cart"]=[];');
 $originalCookie = $cookie;
 $cookie = $temp . '/storefront-cookie.txt';
+$verifiedNames = array_column($db->query('SELECT id, fullname FROM users WHERE id IN (1,2)')->fetch_all(MYSQLI_ASSOC), 'fullname', 'id');
 $internal = ['backend/Models/StorefrontProduct.php','backend/Controllers/Storefront/ProductController.php','frontend/Views/storefront/products/index.php','frontend/Views/storefront/products/detail.php'];
 foreach (['anonymous'=>0,'customer'=>2,'admin'=>1] as $actor=>$actorId) {
     request('storefront-session.php?id=' . $actorId);
     foreach (['pages/products.php','pages/product-detail.php?id=' . $catalogId] as $path) {
         [$status, $html] = request($path);
         check($status === 200 && str_contains($html, 'navbar') && str_contains($html, '</html>'), 'Public catalog with layout: ' . $actor . ' ' . $path);
-        check($actorId ? (str_contains($html, 'Viewer &lt;b&gt;Name&lt;/b&gt;') && str_contains($html, 'Đăng xuất')) : str_contains($html, 'Đăng nhập'), 'Navbar login state: ' . $actor . ' ' . $path);
+        check($actorId ? (str_contains($html, htmlspecialchars($verifiedNames[$actorId], ENT_QUOTES, 'UTF-8')) && str_contains($html, 'Đăng xuất')) : str_contains($html, 'Đăng nhập'), 'Navbar login state: ' . $actor . ' ' . $path);
         check(($actor === 'admin') === str_contains($html, '/admin/index.php'), 'Navbar Admin link: ' . $actor . ' ' . $path);
     }
     foreach ($internal as $path) {

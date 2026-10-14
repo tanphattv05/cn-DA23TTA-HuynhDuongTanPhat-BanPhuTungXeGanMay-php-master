@@ -14,6 +14,7 @@ $navGroups = [
     'products' => ['products.php', 'product-detail.php'],
     'cart' => ['cart.php', 'checkout.php', 'order-success.php'],
     'orders' => ['my-orders.php', 'order-detail.php'],
+    'favorites' => ['favorites.php'],
     'login' => ['login.php'],
     'register' => ['register.php'],
 ];
@@ -78,6 +79,9 @@ if (!empty($_SESSION['cart'])) {
                 </a>
 
                     <?php if (isset($_SESSION['user'])): ?>
+                        <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
+                <a class="nav-link<?= $activeNav('favorites') ?>" href="<?= $baseUrl ?>/pages/favorites.php"><i class="bi bi-heart" aria-hidden="true"></i> Yêu thích</a>
+                        <?php endif; ?>
                         <?php if (($_SESSION['user']['role'] ?? '') === 'admin'): ?>
                 <a class="nav-link"
                 href="<?= $baseUrl ?>/admin/index.php">

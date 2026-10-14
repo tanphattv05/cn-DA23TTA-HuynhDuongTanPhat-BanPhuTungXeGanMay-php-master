@@ -65,7 +65,8 @@ final class ProductController
         } catch (\Throwable $exception) {
             $error = $this->unavailable($exception);
         }
-        View::storefront('storefront/products/index', compact('products', 'error', 'filters', 'validationErrors', 'categories', 'total', 'totalPages', 'page', 'pagination'));
+        $favoriteState = FavoriteController::context(array_map('intval', array_column($products, 'id')));
+        View::storefront('storefront/products/index', compact('products', 'error', 'filters', 'validationErrors', 'categories', 'total', 'totalPages', 'page', 'pagination', 'favoriteState'));
     }
 
     private function catalogInput(array $query): array
@@ -151,6 +152,9 @@ final class ProductController
             }
         }
         $csrfToken = CartCsrf::token();
-        View::storefront('storefront/products/detail', compact('product', 'error', 'canAddToCart', 'csrfToken'));
+        $favoriteState = FavoriteController::context($product ? [(int)$product['id']] : []);
+        $favoriteFlash = $_SESSION['favorite_flash'] ?? '';
+        unset($_SESSION['favorite_flash']);
+        View::storefront('storefront/products/detail', compact('product', 'error', 'canAddToCart', 'csrfToken', 'favoriteState', 'favoriteFlash'));
     }
 }

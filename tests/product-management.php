@@ -185,6 +185,7 @@ try {
     require __DIR__ . '/storefront-product-catalog.php';
     require __DIR__ . '/storefront-ui.php';
     require __DIR__ . '/storefront-navbar-search.php';
+    require __DIR__ . '/storefront-favorites.php';
     echo "Completed $checks checks. Live database untouched.\n";
 } finally {
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }

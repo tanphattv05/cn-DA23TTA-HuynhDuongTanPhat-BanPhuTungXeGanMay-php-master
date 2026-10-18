@@ -15,6 +15,7 @@ $navGroups = [
     'cart' => ['cart.php', 'checkout.php', 'order-success.php'],
     'orders' => ['my-orders.php', 'order-detail.php'],
     'favorites' => ['favorites.php'],
+    'profile' => ['profile.php'],
     'login' => ['login.php'],
     'register' => ['register.php'],
 ];
@@ -94,6 +95,11 @@ if (!empty($_SESSION['cart'])) {
                     Đơn hàng của tôi
                 </a>
 
+                <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
+                <a class="navbar-text nav-greeting mx-xxl-2<?= $activeNav('profile') ?>" href="<?= $baseUrl ?>/pages/profile.php" title="Hồ sơ của tôi" aria-label="Hồ sơ của tôi">
+                    Hồ sơ của tôi
+                </a>
+                <?php else: ?>
                 <span class="navbar-text nav-greeting mx-xxl-2" title="<?= htmlspecialchars($_SESSION['user']['fullname'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                     Xin chào,
                     <?= htmlspecialchars(
@@ -102,6 +108,7 @@ if (!empty($_SESSION['cart'])) {
                         'UTF-8'
                     ) ?>
                 </span>
+                <?php endif; ?>
 
                 <form action="<?= $baseUrl ?>/actions/logout.php" method="post"><input type="hidden" name="auth_csrf_token" value="<?= htmlspecialchars($authCsrfToken, ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="nav-link border-0 bg-transparent">
                     Đăng xuất

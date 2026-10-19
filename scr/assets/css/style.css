@@ -42,6 +42,17 @@
 .storefront-body .nav-register { border:1px solid #737982; margin-left:.4rem; }
 .storefront-body .nav-greeting { color:#d5d8dd; max-width:160px; font-size:.8rem; overflow-wrap:anywhere; }
 .storefront-body .navbar :focus-visible { outline-color:#ffabb5; }
+.storefront-body .customer-account > .dropdown-toggle { background:transparent; text-decoration:none; }
+.storefront-body .customer-account > .dropdown-toggle:hover,
+.storefront-body .customer-account > .dropdown-toggle.active,
+.storefront-body .customer-account > .dropdown-toggle.show { background:#34383f; color:#fff; }
+.storefront-body .customer-account .dropdown-menu { min-width:13rem; max-width:100%; padding:.4rem; background:#fff; border:1px solid #e2e5e9; border-radius:10px; box-shadow:0 8px 24px #00000026; }
+.storefront-body .customer-account .dropdown-item { display:flex; align-items:center; gap:.6rem; padding:.65rem .75rem; color:#252930; border-radius:6px; text-decoration:none; white-space:normal; }
+.storefront-body .customer-account .dropdown-item i { flex-shrink:0; font-size:.95rem; }
+.storefront-body .customer-account .dropdown-item:hover,
+.storefront-body .customer-account .dropdown-item:focus,
+.storefront-body .customer-account .dropdown-item.active { background:#fff0f2; color:var(--mp-red-dark); }
+.storefront-body .customer-account :focus-visible { outline:2px solid var(--mp-red); outline-offset:2px; }
 /* Hero */
 /* Shared navbar search: second row below xxl, between brand and links above. */
 .storefront-body .navbar>.container { max-width:1440px; column-gap:1rem; }

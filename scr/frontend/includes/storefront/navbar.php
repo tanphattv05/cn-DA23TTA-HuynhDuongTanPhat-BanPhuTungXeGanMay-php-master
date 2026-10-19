@@ -16,6 +16,7 @@ $navGroups = [
     'orders' => ['my-orders.php', 'order-detail.php'],
     'favorites' => ['favorites.php'],
     'profile' => ['profile.php'],
+    'addresses' => ['addresses.php'],
     'login' => ['login.php'],
     'register' => ['register.php'],
 ];
@@ -96,9 +97,21 @@ if (!empty($_SESSION['cart'])) {
                 </a>
 
                 <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
-                <a class="navbar-text nav-greeting mx-xxl-2<?= $activeNav('profile') ?>" href="<?= $baseUrl ?>/pages/profile.php" title="Hồ sơ của tôi" aria-label="Hồ sơ của tôi">
-                    Hồ sơ của tôi
-                </a>
+                <div class="nav-item dropdown customer-account">
+                    <button class="nav-link dropdown-toggle border-0<?= in_array($currentPage, ['profile.php', 'addresses.php'], true) ? ' active' : '' ?>"
+                            id="customer-account-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="customer-account-menu">
+                        <i class="bi bi-person" aria-hidden="true"></i> Tài khoản
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" id="customer-account-menu" aria-labelledby="customer-account-toggle" data-bs-theme="light">
+                        <li><a class="dropdown-item<?= $activeNav('profile') ?>" href="<?= $baseUrl ?>/pages/profile.php"><i class="bi bi-person-circle" aria-hidden="true"></i> Hồ sơ của tôi</a></li>
+                        <li><a class="dropdown-item<?= $activeNav('addresses') ?>" href="<?= $baseUrl ?>/pages/addresses.php"><i class="bi bi-geo-alt" aria-hidden="true"></i> Địa chỉ giao hàng</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><form action="<?= $baseUrl ?>/actions/logout.php" method="post">
+                            <input type="hidden" name="auth_csrf_token" value="<?= htmlspecialchars($authCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                            <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Đăng xuất</button>
+                        </form></li>
+                    </ul>
+                </div>
                 <?php else: ?>
                 <span class="navbar-text nav-greeting mx-xxl-2" title="<?= htmlspecialchars($_SESSION['user']['fullname'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                     Xin chào,
@@ -108,11 +121,11 @@ if (!empty($_SESSION['cart'])) {
                         'UTF-8'
                     ) ?>
                 </span>
-                <?php endif; ?>
 
                 <form action="<?= $baseUrl ?>/actions/logout.php" method="post"><input type="hidden" name="auth_csrf_token" value="<?= htmlspecialchars($authCsrfToken, ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="nav-link border-0 bg-transparent">
                     Đăng xuất
                 </button></form>
+                <?php endif; ?>
             <?php else: ?>
                 <a class="nav-link<?= $activeNav('login') ?>"
                 href="<?= $baseUrl ?>/pages/login.php">

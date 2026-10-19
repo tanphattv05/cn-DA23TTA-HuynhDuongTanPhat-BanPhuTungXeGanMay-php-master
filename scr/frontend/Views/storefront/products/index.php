@@ -23,10 +23,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
     </div>
 
     <?php
-    $filtersExpanded = !empty($validationErrors)
-        || $filters['q'] !== '' || $filters['category'] !== ''
-        || $filters['min_price'] !== '' || $filters['max_price'] !== ''
-        || $filters['stock'] !== 'all' || $filters['sort'] !== 'newest';
+    $filtersExpanded = !empty($validationErrors);
     ?>
     <div id="catalog-results" class="catalog-result-heading" data-total="<?= (int)$total ?>" data-page="<?= (int)$page ?>" data-pages="<?= (int)$totalPages ?>">
         <h2 class="form-section-title mb-0">Kết quả sản phẩm</h2>

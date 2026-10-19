@@ -46,6 +46,14 @@ final class View
         }
         extract($variables, EXTR_SKIP);
         $includesDirectory = dirname(__DIR__, 2) . '/frontend/includes/storefront';
+        $navbarCategories = [];
+        try {
+            $navbarCategories = $template === 'storefront/products/index' && isset($categories)
+                ? $categories
+                : (new \MotoParts\App\Models\Category(\MotoParts\App\Middleware\Authenticate::connection()))->options();
+        } catch (\Throwable $e) {
+            // A temporarily unavailable category list must not break login/error pages.
+        }
         require $includesDirectory . '/header.php';
         require $includesDirectory . '/navbar.php';
         require $file;

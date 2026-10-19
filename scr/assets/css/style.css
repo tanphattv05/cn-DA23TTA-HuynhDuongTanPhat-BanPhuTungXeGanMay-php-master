@@ -56,7 +56,14 @@
 /* Hero */
 /* Shared navbar search: second row below xxl, between brand and links above. */
 .storefront-body .navbar>.container { max-width:1440px; column-gap:1rem; }
-.storefront-body .navbar-search { display:flex; flex:0 0 100%; min-width:0; margin-top:.75rem; border:1px solid #737982; border-radius:8px; background:#fff; }
+.storefront-body .navbar-search-group { flex:0 0 100%; min-width:0; max-width:100%; margin-top:.75rem; }
+.storefront-body .navbar-search { display:flex; min-width:0; border:1px solid #737982; border-radius:8px; background:#fff; }
+.storefront-body .navbar-categories { background:#292d33; border-top:1px solid #3b4048; font-size:14px; }
+.storefront-body .navbar-categories>.container { max-width:1440px; }
+.storefront-body .navbar-category-links { display:flex; align-items:center; min-width:0; max-width:100%; overflow-x:auto; scrollbar-width:thin; }
+.storefront-body .navbar-category-links a { flex:1 0 auto; display:flex; align-items:center; justify-content:center; min-height:48px; white-space:nowrap; color:#e2e5e9; text-decoration:none; padding:10px 18px; line-height:24px; }
+.storefront-body .navbar-category-links a:hover,.storefront-body .navbar-category-links a.active { color:#ff6979; background:#ffffff0d; }
+.storefront-body .navbar-category-links a:focus-visible { outline:2px solid #ffabb5; outline-offset:-1px; }
 .storefront-body .navbar-search input { flex:1; min-width:0; width:100%; padding:.65rem .8rem; border:0; border-radius:8px 0 0 8px; background:#fff; color:#202328; font:inherit; font-size:.9rem; }
 .storefront-body .navbar-search input::placeholder { color:#62666d; opacity:1; }
 .storefront-body .navbar-search button { flex:0 0 44px; border:0; border-radius:0 7px 7px 0; background:var(--mp-red); color:#fff; }
@@ -64,7 +71,7 @@
 .storefront-body .navbar-search:focus-within { box-shadow:0 0 0 3px #ffabb5; }
 .storefront-body .navbar-search :focus-visible { outline:3px solid #ffabb5; outline-offset:3px; }
 @media (min-width:1400px) {
-    .storefront-body .navbar-search { flex:1 1 360px; min-width:360px; max-width:520px; margin:0; }
+    .storefront-body .navbar-search-group { flex:1 1 360px; min-width:360px; max-width:520px; margin:0; }
     .storefront-body .navbar-collapse { flex:0 1 auto; }
     .storefront-body .nav-greeting { max-width:72px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .storefront-body .navbar .nav-link { padding-right:.5rem; padding-left:.5rem; font-size:.85rem; }

@@ -51,11 +51,13 @@ if (!empty($_SESSION['cart'])) {
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <div class="navbar-search-group">
         <form id="navbar-search" class="navbar-search" method="get" action="<?= $baseUrl ?>/pages/products.php" role="search">
             <label for="navbar-search-q" class="visually-hidden">Tìm kiếm sản phẩm</label>
             <input id="navbar-search-q" type="search" name="q" maxlength="100" placeholder="Tìm phụ tùng, thương hiệu..." value="<?= htmlspecialchars($navbarQuery, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <button type="submit" aria-label="Tìm kiếm sản phẩm"><i class="bi bi-search" aria-hidden="true"></i></button>
         </form>
+        </div>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
             <div class="navbar-nav ms-auto align-items-xxl-center">
@@ -141,5 +143,17 @@ if (!empty($_SESSION['cart'])) {
         </div>
     </div>
 </nav>
+<?php if (!empty($navbarCategories)): ?>
+<nav class="navbar-categories" aria-label="Danh mục phụ tùng">
+    <div class="container">
+        <div class="navbar-category-links">
+            <?php foreach ($navbarCategories as $navCategory): ?>
+            <?php $categoryActive = $currentPage === 'products.php' && (string) ($filters['category'] ?? '') === (string) $navCategory['id']; ?>
+            <a href="<?= $baseUrl ?>/pages/products.php?category=<?= (int) $navCategory['id'] ?>"<?= $categoryActive ? ' class="active" aria-current="page"' : '' ?>><?= htmlspecialchars($navCategory['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</nav>
+<?php endif; ?>
 </header>
 <main id="main-content" tabindex="-1">

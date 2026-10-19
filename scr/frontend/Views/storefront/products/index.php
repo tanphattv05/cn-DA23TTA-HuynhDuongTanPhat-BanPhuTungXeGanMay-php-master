@@ -31,6 +31,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
     <div id="catalog-results" class="catalog-result-heading" data-total="<?= (int)$total ?>" data-page="<?= (int)$page ?>" data-pages="<?= (int)$totalPages ?>">
         <h2 class="form-section-title mb-0">Kết quả sản phẩm</h2>
         <div class="catalog-result-tools">
+        <div class="catalog-filter-anchor">
         <button class="catalog-filter-toggle btn d-inline-flex align-items-center gap-2"
                 type="button" data-bs-toggle="collapse" data-bs-target="#catalog-filter-panel"
                 aria-expanded="<?= $filtersExpanded ? 'true' : 'false' ?>" aria-controls="catalog-filter-panel">
@@ -38,18 +39,20 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
             <span>Bộ lọc</span>
             <i class="bi bi-chevron-down catalog-filter-arrow ms-auto" aria-hidden="true"></i>
         </button>
-        <?php if (!$validationErrors): ?><p><?= (int)$total ?> sản phẩm · Trang <?= (int)$page ?>/<?= (int)$totalPages ?></p><?php endif; ?>
-        </div>
-    </div>
-    <div id="catalog-filter-panel" class="collapse<?= $filtersExpanded ? ' show' : '' ?>">
-    <form id="catalog-filters" class="catalog-filters card mb-4" method="get" action="products.php">
+    <div id="catalog-filter-panel" class="catalog-filter-panel collapse<?= $filtersExpanded ? ' show' : '' ?>" role="region" aria-labelledby="catalog-filter-title">
+    <form id="catalog-filters" class="catalog-filters card mb-0" method="get" action="products.php">
         <div class="card-body">
+            <div class="catalog-filter-panel-heading d-flex align-items-center justify-content-between gap-3 mb-3">
+                <h3 class="h5 mb-0" id="catalog-filter-title">Lọc sản phẩm</h3>
+                <button type="button" class="btn-close" data-bs-toggle="collapse" data-bs-target="#catalog-filter-panel"
+                        aria-controls="catalog-filter-panel" aria-expanded="<?= $filtersExpanded ? 'true' : 'false' ?>" aria-label="Đóng bộ lọc"></button>
+            </div>
             <div class="row g-3">
-                <div class="col-md-6 col-xl-4">
+                <div class="col-12">
                     <label for="catalog-q" class="form-label">Tên sản phẩm hoặc thương hiệu</label>
                     <input id="catalog-q" class="form-control" type="search" name="q" maxlength="100" value="<?= htmlspecialchars($filters['q'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Tìm phụ tùng cho xe của bạn">
                 </div>
-                <div class="col-md-6 col-xl-4">
+                <div class="col-12 col-sm-6">
                     <label for="catalog-category" class="form-label">Danh mục</label>
                     <select id="catalog-category" class="form-select" name="category">
                         <option value="">Tất cả danh mục</option>
@@ -59,7 +62,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-6 col-xl-4">
+                <div class="col-12 col-sm-6">
                     <label for="catalog-sort" class="form-label">Sắp xếp</label>
                     <select id="catalog-sort" class="form-select" name="sort">
                         <?php foreach (['newest'=>'Mới nhất','price_asc'=>'Giá thấp đến cao','price_desc'=>'Giá cao đến thấp','name_asc'=>'Tên A–Z'] as $value=>$label): ?>
@@ -67,15 +70,15 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-sm-6 col-xl-4">
+                <div class="col-12 col-sm-6">
                     <label for="catalog-min" class="form-label">Giá tối thiểu (₫)</label>
                     <input id="catalog-min" class="form-control" type="text" inputmode="numeric" name="min_price" maxlength="10" pattern="[0-9]{1,10}" value="<?= htmlspecialchars($filters['min_price'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Không giới hạn">
                 </div>
-                <div class="col-sm-6 col-xl-4">
+                <div class="col-12 col-sm-6">
                     <label for="catalog-max" class="form-label">Giá tối đa (₫)</label>
                     <input id="catalog-max" class="form-control" type="text" inputmode="numeric" name="max_price" maxlength="10" pattern="[0-9]{1,10}" value="<?= htmlspecialchars($filters['max_price'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Không giới hạn">
                 </div>
-                <div class="col-md-6 col-xl-4">
+                <div class="col-12">
                     <label for="catalog-stock" class="form-label">Tình trạng hàng</label>
                     <select id="catalog-stock" class="form-select" name="stock">
                         <?php foreach (['all'=>'Tất cả sản phẩm','in_stock'=>'Còn hàng','out_of_stock'=>'Hết hàng'] as $value=>$label): ?>
@@ -90,6 +93,10 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
             </div>
         </div>
     </form>
+    </div>
+        </div>
+        <?php if (!$validationErrors): ?><p><?= (int)$total ?> sản phẩm · Trang <?= (int)$page ?>/<?= (int)$totalPages ?></p><?php endif; ?>
+        </div>
     </div>
     <?php if ($validationErrors): ?>
         <div class="alert alert-danger" role="alert"><strong>Vui lòng kiểm tra bộ lọc:</strong><ul class="mb-0">

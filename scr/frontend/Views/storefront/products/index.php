@@ -22,6 +22,26 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
         </div>
     </div>
 
+    <?php
+    $filtersExpanded = !empty($validationErrors)
+        || $filters['q'] !== '' || $filters['category'] !== ''
+        || $filters['min_price'] !== '' || $filters['max_price'] !== ''
+        || $filters['stock'] !== 'all' || $filters['sort'] !== 'newest';
+    ?>
+    <div id="catalog-results" class="catalog-result-heading" data-total="<?= (int)$total ?>" data-page="<?= (int)$page ?>" data-pages="<?= (int)$totalPages ?>">
+        <h2 class="form-section-title mb-0">Kết quả sản phẩm</h2>
+        <div class="catalog-result-tools">
+        <button class="catalog-filter-toggle btn d-inline-flex align-items-center gap-2"
+                type="button" data-bs-toggle="collapse" data-bs-target="#catalog-filter-panel"
+                aria-expanded="<?= $filtersExpanded ? 'true' : 'false' ?>" aria-controls="catalog-filter-panel">
+            <i class="bi bi-sliders" aria-hidden="true"></i>
+            <span>Bộ lọc</span>
+            <i class="bi bi-chevron-down catalog-filter-arrow ms-auto" aria-hidden="true"></i>
+        </button>
+        <?php if (!$validationErrors): ?><p><?= (int)$total ?> sản phẩm · Trang <?= (int)$page ?>/<?= (int)$totalPages ?></p><?php endif; ?>
+        </div>
+    </div>
+    <div id="catalog-filter-panel" class="collapse<?= $filtersExpanded ? ' show' : '' ?>">
     <form id="catalog-filters" class="catalog-filters card mb-4" method="get" action="products.php">
         <div class="card-body">
             <div class="row g-3">
@@ -70,15 +90,11 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
             </div>
         </div>
     </form>
+    </div>
     <?php if ($validationErrors): ?>
         <div class="alert alert-danger" role="alert"><strong>Vui lòng kiểm tra bộ lọc:</strong><ul class="mb-0">
         <?php foreach ($validationErrors as $message): ?><li><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></li><?php endforeach; ?>
         </ul></div>
-    <?php else: ?>
-        <div id="catalog-results" class="catalog-result-heading" data-total="<?= (int)$total ?>" data-page="<?= (int)$page ?>" data-pages="<?= (int)$totalPages ?>">
-            <h2 class="form-section-title">Kết quả sản phẩm</h2>
-            <p><?= (int)$total ?> sản phẩm · Trang <?= (int)$page ?>/<?= (int)$totalPages ?></p>
-        </div>
     <?php endif; ?>
     <div class="row">
 

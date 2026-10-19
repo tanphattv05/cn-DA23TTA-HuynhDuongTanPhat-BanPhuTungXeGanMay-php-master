@@ -21,6 +21,21 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
                     <form action="../actions/checkout.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="submit_token" value="<?= htmlspecialchars($submitToken, ENT_QUOTES, 'UTF-8') ?>">
+                        <?php if ($savedAddresses): ?>
+                        <div class="mb-3">
+                            <label for="address-id" class="form-label">Địa chỉ đã lưu</label>
+                            <select class="form-select" id="address-id" name="address_id" aria-describedby="address-help">
+                                <option value="">Nhập địa chỉ khác</option>
+                                <?php foreach ($savedAddresses as $saved): ?>
+                                <option value="<?= (int) $saved['id'] ?>" <?= (string) ($old['address_id'] ?? '') === (string) $saved['id'] ? 'selected' : '' ?>
+                                    data-fullname="<?= htmlspecialchars($saved['fullname'], ENT_QUOTES, 'UTF-8') ?>"
+                                    data-phone="<?= htmlspecialchars($saved['phone'], ENT_QUOTES, 'UTF-8') ?>"
+                                    data-address="<?= htmlspecialchars($saved['address'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($saved['fullname'] . ' — ' . $saved['address'], ENT_QUOTES, 'UTF-8') ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="form-text" id="address-help">Chọn địa chỉ đã lưu để dùng thông tin người nhận đó. Chọn “Nhập địa chỉ khác” để sửa thông tin bên dưới.</div>
+                        </div>
+                        <?php endif; ?>
                         <div class="mb-3">
                             <label for="fullname" class="form-label">
                                 Họ và tên
@@ -142,3 +157,6 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) { http_response_code(403); exit; }
 <?php else: ?>
     <a href="cart.php" class="btn btn-outline-dark">Quay lại giỏ hàng</a>
 <?php endif; ?></div>
+<?php if ($savedAddresses): ?>
+<script src="../assets/js/checkout-address.js?v=<?= hash_file('sha256', dirname(__DIR__, 4) . '/assets/js/checkout-address.js') ?>" defer></script>
+<?php endif; ?>

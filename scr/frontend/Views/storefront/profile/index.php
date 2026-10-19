@@ -4,6 +4,7 @@ $escape = static fn($value) => htmlspecialchars((string) $value, ENT_QUOTES | EN
 ?>
 <div class="container py-4">
     <h1 class="h3 mb-4">Hồ sơ của tôi</h1>
+    <p><a class="btn btn-outline-dark" href="addresses.php">Quản lý địa chỉ giao hàng</a></p>
     <?php if ($flash): ?><div class="alert alert-<?= $escape($flash['type']) ?>" role="alert"><?= $escape($flash['message']) ?></div><?php endif; ?>
     <div class="row g-4">
         <section class="col-12 col-lg-6">

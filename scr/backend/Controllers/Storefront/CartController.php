@@ -17,6 +17,7 @@ final class CartController
         ini_set('display_errors', '0');
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         if (session_status() === PHP_SESSION_NONE) session_start();
+        \MotoParts\App\Middleware\Authenticate::requireCustomer(true);
         $this->cart = new CartService($_SESSION);
     }
 

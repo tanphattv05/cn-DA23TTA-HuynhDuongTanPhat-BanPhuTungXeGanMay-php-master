@@ -84,17 +84,20 @@ final class AuthController
         catch (\DomainException $exception) { $_SESSION['login_error'] = $exception->getMessage(); $this->redirect('../pages/login.php'); }
         catch (\Throwable $exception) { $_SESSION['login_error'] = $this->failure($exception); $this->redirect('../pages/login.php'); }
         session_regenerate_id(true);
+        $productId = \MotoParts\App\Services\CartService::integer($_SESSION['login_product_id'] ?? null);
+        unset($_SESSION['login_product_id']);
+        Authenticate::clearPurchase();
         $_SESSION['user'] = $user;
+        if ($user['role'] === 'customer') $_SESSION['cart_owner'] = $user['id'];
         unset($_SESSION['login_email'], $_SESSION['login_error'], $_SESSION['auth_csrf_token'],
             $_SESSION['completed_order_id'], $_SESSION['completed_order_user_id'], $_SESSION['checkout_old'], $_SESSION['checkout_submit_token']);
-        $this->redirect($user['role'] === 'admin' ? '../admin/index.php' : '../index.php');
+        $this->redirect($user['role'] === 'admin' ? '../admin/index.php' : ($productId ? '../pages/product-detail.php?id=' . $productId : '../index.php'));
     }
 
     public function logout(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && AuthCsrf::valid($_POST['auth_csrf_token'] ?? null)) {
-            $cart = is_array($_SESSION['cart'] ?? null) ? $_SESSION['cart'] : [];
-            $_SESSION = ['cart' => $cart];
+            $_SESSION = [];
             session_regenerate_id(true);
         }
         $this->redirect('../index.php');

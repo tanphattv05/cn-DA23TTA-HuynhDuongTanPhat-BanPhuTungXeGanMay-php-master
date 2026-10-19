@@ -23,13 +23,13 @@ final class Authenticate
     public static function current(): ?array
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
-        if (!isset($_SESSION['user'])) return null;
+        if (!isset($_SESSION['user'])) { self::clearPurchase(); return null; }
         $sessionUser = $_SESSION['user'];
         $id = is_array($sessionUser) ? filter_var($sessionUser['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : false;
         $roleValid = is_array($sessionUser) && (!isset($sessionUser['role']) || in_array($sessionUser['role'], ['admin', 'customer'], true));
         $user = $id && $roleValid ? (new UserAuth(self::connection()))->findById($id) : null;
         if (!$user || !in_array($user['role'], ['customer', 'admin'], true)) {
-            // Keep the cart, but invalidate private data belonging to the old identity.
+            self::clearPurchase();
             unset($_SESSION['user'], $_SESSION['completed_order_id'], $_SESSION['completed_order_user_id'],
                 $_SESSION['checkout_old'], $_SESSION['checkout_submit_token']);
             return null;
@@ -48,6 +48,37 @@ final class Authenticate
             $_SESSION['login_error'] = 'Vui lòng đăng nhập để tiếp tục.';
             header('Location: ' . self::BASE_URL . '/pages/login.php', true, 302);
             exit;
+        }
+        return $user;
+    }
+
+    public static function clearPurchase(): void
+    {
+        unset($_SESSION['cart'], $_SESSION['cart_owner'], $_SESSION['cart_csrf_token'],
+            $_SESSION['cart_flash'], $_SESSION['checkout_old'], $_SESSION['checkout_error'],
+            $_SESSION['checkout_submit_token'], $_SESSION['completed_order_id'], $_SESSION['completed_order_user_id']);
+    }
+
+    public static function requireCustomer(bool $purchase = false): array
+    {
+        try { $user = self::current(); }
+        catch (\Throwable $e) { self::error(503, 'Không thể kiểm tra tài khoản. Vui lòng thử lại sau.'); }
+        if (!$user) {
+            $_SESSION['login_error'] = $purchase ? 'Vui lòng đăng nhập để mua hàng' : 'Vui lòng đăng nhập để tiếp tục.';
+            // Store only a validated product ID, never a caller-provided redirect URL.
+            unset($_SESSION['login_product_id']);
+            $id = \MotoParts\App\Services\CartService::integer($_POST['product_id'] ?? null);
+            if ($purchase && $id !== null) $_SESSION['login_product_id'] = $id;
+            header('Location: ' . self::BASE_URL . '/pages/login.php', true, 302);
+            exit;
+        }
+        if ($user['role'] !== 'customer') {
+            self::clearPurchase();
+            self::error(403, 'Chỉ khách hàng được sử dụng chức năng này.');
+        }
+        if ($purchase && ($_SESSION['cart_owner'] ?? null) !== $user['id']) {
+            self::clearPurchase();
+            $_SESSION['cart_owner'] = $user['id'];
         }
         return $user;
     }

@@ -4,6 +4,8 @@ namespace MotoParts\App\Controllers\Storefront;
 use MotoParts\App\Core\CartCsrf;
 use MotoParts\App\Core\View;
 use MotoParts\App\Models\Checkout;
+use MotoParts\App\Models\ShippingAddress;
+use MotoParts\App\Middleware\Authenticate;
 use MotoParts\App\Services\CartService;
 use MotoParts\App\Services\CheckoutService;
 
@@ -17,6 +19,7 @@ final class CheckoutController
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         // Keep the PHP session lock until commit AND token/cart updates complete.
         if (session_status() === PHP_SESSION_NONE) session_start();
+        Authenticate::requireCustomer(true);
     }
 
     private function model(): Checkout
@@ -31,12 +34,9 @@ final class CheckoutController
         exit;
     }
 
-    private function userId(): ?int
+    private function userId(): int
     {
-        if (!isset($_SESSION['user'])) return null;
-        $user = \MotoParts\App\Middleware\Authenticate::current();
-        if ($user === null) throw new \DomainException('Tài khoản không hợp lệ. Vui lòng đăng nhập lại.');
-        return $user['id'];
+        return Authenticate::requireCustomer(true)['id'];
     }
 
     private function databaseError(\Throwable $exception): string
@@ -82,6 +82,7 @@ final class CheckoutController
             $this->redirect('cart.php');
         }
         $products = [];
+        $savedAddresses = [];
         $total = '0.00';
         $error = $_SESSION['checkout_error'] ?? '';
         $old = $_SESSION['checkout_old'] ?? [];
@@ -95,6 +96,15 @@ final class CheckoutController
             if ($userId !== null) {
                 $user = $model->user($userId);
                 if (!$user) throw new \DomainException('Tài khoản không còn hợp lệ. Vui lòng đăng nhập lại.');
+                if ($user['role'] === 'customer') {
+                    try { $savedAddresses = (new ShippingAddress(Authenticate::connection()))->all($userId); }
+                    catch (\mysqli_sql_exception $e) { if ($e->getCode() !== 1146) throw $e; }
+                    // Existing checkout drafts, even empty fields, always take precedence.
+                    if (!$old && $savedAddresses && (int) $savedAddresses[0]['is_default'] === 1) {
+                        $default = $savedAddresses[0];
+                        $old = ['fullname'=>$default['fullname'], 'phone'=>$default['phone'], 'address'=>$default['address'], 'address_id'=>(string) $default['id']];
+                    }
+                }
                 $old['fullname'] = $old['fullname'] ?? $user['fullname'];
                 $old['phone'] = $old['phone'] ?? ($user['phone'] ?? '');
             }
@@ -118,7 +128,7 @@ final class CheckoutController
             $unavailable = true;
             $_SESSION['checkout_old'] = $old;
         }
-        View::storefront('storefront/checkout/index', compact('products', 'total', 'error', 'old', 'csrfToken', 'submitToken', 'unavailable'));
+        View::storefront('storefront/checkout/index', compact('products', 'total', 'error', 'old', 'csrfToken', 'submitToken', 'unavailable', 'savedAddresses'));
     }
 
     public function place(): void
@@ -134,14 +144,23 @@ final class CheckoutController
             $_SESSION['checkout_error'] = 'Phiếu đặt hàng đã được xử lý hoặc hết hiệu lực. Vui lòng kiểm tra lại.';
             $this->redirect('checkout.php');
         }
-        [$data, $errors] = $this->recipient($_POST);
-        $_SESSION['checkout_old'] = $data;
-        if ($errors) {
-            $_SESSION['checkout_error'] = implode(' ', $errors);
-            $this->redirect('checkout.php');
-        }
         try {
             $userId = $this->userId();
+            $input = $_POST;
+            $selected = $_POST['address_id'] ?? '';
+            // Keep only bounded recipient fields in session, never a client-supplied user ID.
+            [$draft] = $this->recipient($input);
+            $_SESSION['checkout_old'] = $draft + ['address_id'=>''];
+            if ($selected !== '') {
+                $id = CartService::integer($selected);
+                if (!$id || $userId === null || ($_SESSION['user']['role'] ?? '') !== 'customer') throw new \DomainException('Địa chỉ đã chọn không hợp lệ.');
+                $address = (new ShippingAddress(Authenticate::connection()))->owned($id, $userId);
+                if (!$address) throw new \DomainException('Địa chỉ không còn tồn tại hoặc không thuộc tài khoản của bạn.');
+                foreach (['fullname', 'phone', 'address'] as $field) $input[$field] = $address[$field];
+            }
+            [$data, $errors] = $this->recipient($input);
+            $_SESSION['checkout_old'] = $data + ['address_id'=>$selected];
+            if ($errors) throw new \DomainException(implode(' ', $errors));
             $orderId = (new CheckoutService($this->model()))->place($_SESSION['cart'] ?? [], $data, $userId);
         } catch (\DomainException $exception) {
             $_SESSION['checkout_error'] = $exception->getMessage();

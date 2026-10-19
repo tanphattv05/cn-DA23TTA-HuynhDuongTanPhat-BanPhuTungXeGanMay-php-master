@@ -15,7 +15,7 @@ final class OrderController
     public function __construct()
     {
         ini_set('display_errors', '0');
-        $this->userId = Authenticate::requireUser()['id'];
+        $this->userId = Authenticate::requireCustomer()['id'];
     }
 
     private function model(): StorefrontOrder

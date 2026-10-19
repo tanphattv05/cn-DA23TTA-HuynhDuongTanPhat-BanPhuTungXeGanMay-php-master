@@ -45,9 +45,11 @@ final class ProductController
         $error = '';
         [$filters, $validationErrors, $page] = $this->catalogInput($_GET);
         $categories = []; $total = 0; $totalPages = 1; $pagination = [];
+        $priceBounds = ['minimum'=>null, 'maximum'=>null];
         try {
             $model = $this->model();
             $categories = $model->categories();
+            $priceBounds = $model->priceBounds();
             if ($filters['category'] !== '' && !in_array($filters['category'], array_map('strval', array_column($categories, 'id')), true)) {
                 $validationErrors['category'] = 'Danh mục không hợp lệ hoặc không còn tồn tại.';
             }
@@ -66,7 +68,7 @@ final class ProductController
             $error = $this->unavailable($exception);
         }
         $favoriteState = FavoriteController::context(array_map('intval', array_column($products, 'id')));
-        View::storefront('storefront/products/index', compact('products', 'error', 'filters', 'validationErrors', 'categories', 'total', 'totalPages', 'page', 'pagination', 'favoriteState'));
+        View::storefront('storefront/products/index', compact('products', 'error', 'filters', 'validationErrors', 'categories', 'total', 'totalPages', 'page', 'pagination', 'favoriteState', 'priceBounds'));
     }
 
     private function catalogInput(array $query): array

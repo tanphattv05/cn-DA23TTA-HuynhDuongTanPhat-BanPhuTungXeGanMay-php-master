@@ -38,6 +38,8 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
         </button>
     <div id="catalog-filter-panel" class="catalog-filter-panel collapse<?= $filtersExpanded ? ' show' : '' ?>" role="region" aria-labelledby="catalog-filter-title">
     <form id="catalog-filters" class="catalog-filters card mb-0" method="get" action="products.php">
+        <input type="hidden" name="q" value="<?= htmlspecialchars($filters['q'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <input type="hidden" name="category" value="<?= htmlspecialchars($filters['category'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <div class="card-body">
             <div class="catalog-filter-panel-heading d-flex align-items-center justify-content-between gap-3 mb-3">
                 <h3 class="h5 mb-0" id="catalog-filter-title">Lọc sản phẩm</h3>
@@ -46,20 +48,6 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
             </div>
             <div class="row g-3">
                 <div class="col-12">
-                    <label for="catalog-q" class="form-label">Tên sản phẩm hoặc thương hiệu</label>
-                    <input id="catalog-q" class="form-control" type="search" name="q" maxlength="100" value="<?= htmlspecialchars($filters['q'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Tìm phụ tùng cho xe của bạn">
-                </div>
-                <div class="col-12 col-sm-6">
-                    <label for="catalog-category" class="form-label">Danh mục</label>
-                    <select id="catalog-category" class="form-select" name="category">
-                        <option value="">Tất cả danh mục</option>
-                        <?php if (isset($validationErrors['category']) && $filters['category'] !== ''): ?><option selected value="<?= htmlspecialchars($filters['category'], ENT_QUOTES, 'UTF-8') ?>">Danh mục không hợp lệ</option><?php endif; ?>
-                        <?php foreach ($categories as $category): ?>
-                        <option value="<?= (int)$category['id'] ?>" <?= (string)$category['id'] === $filters['category'] ? 'selected' : '' ?>><?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-12 col-sm-6">
                     <label for="catalog-sort" class="form-label">Sắp xếp</label>
                     <select id="catalog-sort" class="form-select" name="sort">
                         <?php foreach (['newest'=>'Mới nhất','price_asc'=>'Giá thấp đến cao','price_desc'=>'Giá cao đến thấp','name_asc'=>'Tên A–Z'] as $value=>$label): ?>
@@ -67,21 +55,24 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-12 col-sm-6">
-                    <label for="catalog-min" class="form-label">Giá tối thiểu (₫)</label>
-                    <input id="catalog-min" class="form-control" type="text" inputmode="numeric" name="min_price" maxlength="10" pattern="[0-9]{1,10}" value="<?= htmlspecialchars($filters['min_price'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Không giới hạn">
-                </div>
-                <div class="col-12 col-sm-6">
-                    <label for="catalog-max" class="form-label">Giá tối đa (₫)</label>
-                    <input id="catalog-max" class="form-control" type="text" inputmode="numeric" name="max_price" maxlength="10" pattern="[0-9]{1,10}" value="<?= htmlspecialchars($filters['max_price'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Không giới hạn">
-                </div>
                 <div class="col-12">
-                    <label for="catalog-stock" class="form-label">Tình trạng hàng</label>
-                    <select id="catalog-stock" class="form-select" name="stock">
-                        <?php foreach (['all'=>'Tất cả sản phẩm','in_stock'=>'Còn hàng','out_of_stock'=>'Hết hàng'] as $value=>$label): ?>
-                        <option value="<?= $value ?>" <?= $filters['stock'] === $value ? 'selected' : '' ?>><?= $label ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <fieldset id="catalog-price-range" data-min="<?= htmlspecialchars((string) ($priceBounds['minimum'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" data-max="<?= htmlspecialchars((string) ($priceBounds['maximum'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        <legend class="form-label fs-6">Khoảng giá</legend>
+                        <input type="hidden" id="catalog-min" name="min_price" value="<?= htmlspecialchars($filters['min_price'], ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" id="catalog-max" name="max_price" value="<?= htmlspecialchars($filters['max_price'], ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="price-range-values">
+                            <div class="price-range-value"><span>Từ</span><output id="price-low-label" for="price-low"></output></div>
+                            <div class="price-range-value"><span>Đến</span><output id="price-high-label" for="price-high"></output></div>
+                        </div>
+                        <div class="price-range-track">
+                            <label class="visually-hidden" for="price-low">Giá tối thiểu</label>
+                            <input id="price-low" type="range" min="0" max="0" value="0" step="1" disabled>
+                            <label class="visually-hidden" for="price-high">Giá tối đa</label>
+                            <input id="price-high" type="range" min="0" max="0" value="0" step="1" disabled>
+                        </div>
+                        <p id="price-range-note" class="small text-muted mb-0">Kéo hai đầu để chọn giá. Dùng phím mũi tên khi chọn đầu kéo.</p>
+                        <noscript><p class="small">Bật JavaScript để chỉnh khoảng giá; điều kiện giá trong URL vẫn được giữ.</p></noscript>
+                    </fieldset>
                 </div>
             </div>
             <div class="catalog-filter-actions mt-3">
@@ -90,6 +81,7 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
             </div>
         </div>
     </form>
+    <script src="../assets/js/catalog-price-range.js?v=<?= hash_file('sha256', dirname(__DIR__, 4) . '/assets/js/catalog-price-range.js') ?>" defer></script>
     </div>
         </div>
         <?php if (!$validationErrors): ?><p><?= (int)$total ?> sản phẩm · Trang <?= (int)$page ?>/<?= (int)$totalPages ?></p><?php endif; ?>

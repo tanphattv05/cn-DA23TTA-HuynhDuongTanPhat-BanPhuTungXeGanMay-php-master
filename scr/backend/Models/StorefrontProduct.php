@@ -61,6 +61,11 @@ final class StorefrontProduct
         return $this->rows('SELECT id, name FROM categories ORDER BY name ASC, id ASC');
     }
 
+    public function priceBounds(): array
+    {
+        return $this->rows('SELECT MIN(p.price) AS minimum, MAX(p.price) AS maximum' . self::FROM)[0];
+    }
+
     public function count(array $filters): int
     {
         [$where, $types, $values] = $this->conditions($filters);

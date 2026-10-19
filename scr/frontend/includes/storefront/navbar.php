@@ -143,7 +143,7 @@ if (!empty($_SESSION['cart'])) {
         </div>
     </div>
 </nav>
-<?php if (!empty($navbarCategories)): ?>
+<?php if ($currentPage === 'products.php' && !empty($navbarCategories)): ?>
 <nav class="navbar-categories" aria-label="Danh mục phụ tùng">
     <div class="container">
         <div class="navbar-category-links">

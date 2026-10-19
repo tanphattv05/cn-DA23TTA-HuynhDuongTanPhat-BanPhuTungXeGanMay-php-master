@@ -102,11 +102,16 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
 
                     <div class="card product-card h-100 shadow-sm">
 
+                        <div class="product-card-image">
                         <img
                             src="<?php echo htmlspecialchars($product['image_url'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>"
                             class="card-img-top" loading="lazy"
                             alt="<?php echo htmlspecialchars((string) ($product['name'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>"
                             >
+                        <div class="product-card-favorite">
+                            <?php $favoriteIconOnly = true; require dirname(__DIR__, 3).'/includes/storefront/favorite-button.php'; unset($favoriteIconOnly); ?>
+                        </div>
+                        </div>
 
                         <div class="card-body d-flex flex-column">
 
@@ -145,7 +150,6 @@ if (!defined('MOTOPARTS_MVC_ENTRY')) {
 
                             </a>
 
-                            <?php require dirname(__DIR__, 3).'/includes/storefront/favorite-button.php'; ?>
                         </div>
 
                     </div>
